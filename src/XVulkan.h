@@ -15,9 +15,16 @@ struct XBufferObject {
 };
 // 填充vbo bufferdata
 void xglBufferData(XVulkanHandle vbo, int size, void* data);
-// 生成buffer cpu -> gpu 通过buffer
+// 创建vbo
 VkResult xGenBuffer(VkBuffer& buffer, VkDeviceMemory& buffermemory, VkDeviceSize size,
 	VkBufferUsageFlags usage, VkMemoryPropertyFlags properties);
+// 
+void xBufferSubData(VkBuffer buffer, VkBufferUsageFlags usage, const void* data,
+	VkDeviceSize size);
+
 
 #define  xGenVertexBuffer(size, buffer, buffermemory)\
 	xGenBuffer(buffer, buffermemory, size, VK_BUFFER_USAGE_TRANSFER_DST_BIT|VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT)
+
+#define xBufferSubVertexData(buffer, data, size)\
+	xBufferSubData(buffer, VK_BUFFER_USAGE_TRANSFER_SRC_BIT|VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, data, size)
