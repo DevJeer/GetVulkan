@@ -1,4 +1,8 @@
 #include<windows.h>
+#include "BVulkan.h"
+#include "scene.h"
+#pragma comment(lib, "winmm.lib")
+
 LRESULT CALLBACK LearnWindowProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam) {
 	switch (message) {
 	case WM_CLOSE:
@@ -36,9 +40,14 @@ INT WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
 	HWND hwnd = CreateWindowEx(NULL, L"LearnVulkanWindow", L"GetVulkanWindow", WS_OVERLAPPEDWINDOW,
 		0, 0, rect.right - rect.left, rect.bottom - rect.top,
 		nullptr, nullptr, hInstance, nullptr);
+	// 初始化vulkan
+	InitVulkan(hwnd, 1280, 720);
+	// 初始化窗口
+	Init();
 	ShowWindow(hwnd, SW_SHOW);
 	UpdateWindow(hwnd);
 	MSG msg;
+	float last_time = timeGetTime() / 1000.0f;
 	while (true) {
 		if (PeekMessage(&msg, NULL, NULL, NULL, PM_REMOVE)) {
 			if (msg.message == WM_QUIT) {
@@ -47,6 +56,15 @@ INT WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
 			TranslateMessage(&msg);
 			DispatchMessage(&msg);
 		}
+		float current_time = timeGetTime() / 1000.0f;
+		float deltaTime = current_time - last_time;
+		last_time = current_time;
+		// 绘制场景
+		Draw(deltaTime);
 	}
+	// 退出
+	OnQuit();
+	// 销毁vulkan相关的资源
+	VulkanCleanUp();
 	return 0;
 }
