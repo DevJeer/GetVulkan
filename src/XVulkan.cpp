@@ -46,7 +46,7 @@ VkResult xGenBuffer(VkBuffer& buffer, VkDeviceMemory& buffermemory, VkDeviceSize
 	VkMemoryAllocateInfo memoryallocinfo = {};
 	memoryallocinfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
 	memoryallocinfo.allocationSize = requirements.size;
-	memoryallocinfo.memoryTypeIndex = FindMemoryType(requirements.memoryTypeBits, properties);
+	memoryallocinfo.memoryTypeIndex = xGetMemoryType(requirements.memoryTypeBits, properties);
 	ret = vkAllocateMemory(GetVulkanDevice(), &memoryallocinfo, nullptr, &buffermemory);
 	if (ret != VK_SUCCESS) {
 		printf("failed to alloc memory\n");
@@ -78,4 +78,16 @@ void xBufferSubData(VkBuffer buffer, VkBufferUsageFlags usage, const void* data,
 
 	vkDestroyBuffer(GetVulkanDevice(), tempbuffer, nullptr);
 	vkFreeMemory(GetVulkanDevice(), tempmemory, nullptr);
+}
+
+uint32_t xGetMemoryType(uint32_t type_filters, VkMemoryPropertyFlags properties) {
+	VkPhysicalDeviceMemoryProperties memory_properties;
+	vkGetPhysicalDeviceMemoryProperties(GetVulkanPhysicalDevice(), &memory_properties);
+	for (uint32_t i = 0; i < memory_properties.memoryTypeCount; ++i) {
+		uint32_t flag = 1 << i;
+		if ((flag & type_filters) && (memory_properties.memoryTypes[i].propertyFlags & properties) == properties) {
+			return i; // ур╣╫ак
+		}
+	}
+	return 0;
 }
