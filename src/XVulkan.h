@@ -30,3 +30,11 @@ void xBufferSubData(VkBuffer buffer, VkBufferUsageFlags usage, const void* data,
 	xBufferSubData(buffer, VK_BUFFER_USAGE_TRANSFER_SRC_BIT|VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, data, size)
 // 获取内存的属性
 uint32_t xGetMemoryType(uint32_t type_filters, VkMemoryPropertyFlags properties);
+// beginCommandbuffer
+void xBeginOneTimeCommandBuffer(VkCommandBuffer* commandbuffer);
+// endCommandbuffer
+void xEndOneTimeCommandBuffer(VkCommandBuffer commandbuffer);
+// 生成commandbuffer
+void xGenCommandBuffer(VkCommandBuffer* commandbuffer, int count, VkCommandBufferLevel level = VK_COMMAND_BUFFER_LEVEL_PRIMARY);
+// 等待队列提交完成
+void xWaitForCommandFinish(VkCommandBuffer commandbuffer);
