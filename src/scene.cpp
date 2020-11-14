@@ -1,8 +1,9 @@
 #include "BVulkan.h"
 #include "scene.h"
+#include "XVulkan.h"
 
 AVulkanHandle program;
-AVulkanHandle vbo;
+XBufferObject *vbo;
 
 void Init() {
 	Vertex vertexes[3];
@@ -13,9 +14,10 @@ void Init() {
 	vertexes[2].SetPosition(0.0f, -0.5f, 0.0f);
 	vertexes[2].SetTexcoord(0.0f, 1.0f, 1.0f, 1.0f);
 	// 创建buffer
-	vbo = glGenBuffer();
+	vbo = new XBufferObject;
 	// 填充buffer
-	glBufferData(vbo, sizeof(Vertex) * 3, vertexes);
+	xglBufferData(vbo, sizeof(Vertex) * 3, vertexes);
+	
 	// 创建program
 	program = aCreateProgram();
 	GLuint vs, fs;

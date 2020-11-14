@@ -148,10 +148,12 @@
     <ClCompile Include="src\BVulkan.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\scene.cpp" />
+    <ClCompile Include="src\XVulkan.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\BVulkan.h" />
     <ClInclude Include="src\scene.h" />
+    <ClInclude Include="src\XVulkan.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Res\test.fs" />
