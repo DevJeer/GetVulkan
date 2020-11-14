@@ -33,4 +33,8 @@
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>
+  <ItemGroup>
+    <None Include="Res\test.vs" />
+    <None Include="Res\test.fs" />
+  </ItemGroup>
 </Project>
