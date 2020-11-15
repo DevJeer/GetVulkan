@@ -87,3 +87,7 @@ void xWaitForCommandFinish(VkCommandBuffer commandbuffer);
 // code为我们的shader代码
 // code_len为shader代码的长度
 void xCreateShader(VkShaderModule& shader, unsigned char* code, int code_len);
+
+void xAttachVertexShader(XProgram* program, VkShaderModule shader);
+
+void xAttachFragmentShader(XProgram* program, VkShaderModule shader);

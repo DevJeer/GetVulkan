@@ -187,3 +187,18 @@ void xCreateShader(VkShaderModule& shader, unsigned char* code, int code_len) {
 	smci.pCode = (uint32_t*)code;
 	vkCreateShaderModule(GetVulkanDevice(), &smci, nullptr, &shader);
 }
+
+void xAttachVertexShader(XProgram* program, VkShaderModule shader) {
+	program->mShaderStage[0].sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+	program->mShaderStage[0].stage = VK_SHADER_STAGE_VERTEX_BIT;
+	program->mShaderStage[0].module = shader;
+	program->mShaderStage[0].pName = "main";
+	program->mVertexShader = shader;
+}
+void xAttachFragmentShader(XProgram* program, VkShaderModule shader) {
+	program->mShaderStage[1].sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+	program->mShaderStage[1].stage = VK_SHADER_STAGE_FRAGMENT_BIT;
+	program->mShaderStage[1].module = shader;
+	program->mShaderStage[1].pName = "main";
+	program->mFragmentShader = shader;
+}
