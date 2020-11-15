@@ -83,3 +83,7 @@ void xEndOneTimeCommandBuffer(VkCommandBuffer commandbuffer);
 void xGenCommandBuffer(VkCommandBuffer* commandbuffer, int count, VkCommandBufferLevel level = VK_COMMAND_BUFFER_LEVEL_PRIMARY);
 // 等待队列提交完成
 void xWaitForCommandFinish(VkCommandBuffer commandbuffer);
+// 创建shadermodule
+// code为我们的shader代码
+// code_len为shader代码的长度
+void xCreateShader(VkShaderModule& shader, unsigned char* code, int code_len);

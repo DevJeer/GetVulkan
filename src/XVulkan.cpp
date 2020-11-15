@@ -179,3 +179,11 @@ void xWaitForCommandFinish(VkCommandBuffer commandbuffer) {
 	vkWaitForFences(GetVulkanDevice(), 1, &fence, VK_TRUE, 1000000000);
 	vkDestroyFence(GetVulkanDevice(), fence, nullptr);
 }
+
+void xCreateShader(VkShaderModule& shader, unsigned char* code, int code_len) {
+	VkShaderModuleCreateInfo smci = {};
+	smci.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
+	smci.codeSize = code_len;
+	smci.pCode = (uint32_t*)code;
+	vkCreateShaderModule(GetVulkanDevice(), &smci, nullptr, &shader);
+}
