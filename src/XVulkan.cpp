@@ -206,8 +206,8 @@ void xAttachFragmentShader(XProgram* program, VkShaderModule shader) {
 
 void xLinkProgram(XProgram* program) {
 	xInitDescriptorSetLayout(program);
-	InitDescriptorPool(program);
-	InitDescriptorSet(program);
+	xInitDescriptorPool(program);
+	xInitDescriptorSet(program);
 	aSetDescriptorSetLayout(&program->mFixedPipeline, &program->mDescriptorSetLayout);
 	aSetShaderStage(&program->mFixedPipeline, program->mShaderStage, 2);
 	aSetColorAttachmentCount(&program->mFixedPipeline, 1);
@@ -223,4 +223,32 @@ void xInitDescriptorSetLayout(XProgram* program) {
 	dslci.bindingCount = uint32_t(program->mDescriptorSetLayoutBindings.size());
 	dslci.pBindings = program->mDescriptorSetLayoutBindings.data();
 	vkCreateDescriptorSetLayout(GetVulkanDevice(), &dslci, nullptr, &program->mDescriptorSetLayout);
+}
+
+void xInitDescriptorPool(XProgram* program) {
+	if (program->mDescriptorPoolSize.empty()) {
+		return;
+	}
+	VkDescriptorPoolCreateInfo dpci = {};
+	dpci.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
+	dpci.poolSizeCount = uint32_t(program->mDescriptorPoolSize.size());
+	dpci.pPoolSizes = program->mDescriptorPoolSize.data();
+	dpci.maxSets = 1;
+	vkCreateDescriptorPool(GetVulkanDevice(), &dpci, nullptr, &program->mDescriptorPool);
+}
+
+void xInitDescriptorSet(XProgram* program) {
+	if (program->mWriteDescriptorSet.empty()) {
+		return;
+	}
+	VkDescriptorSetAllocateInfo dsai = {};
+	dsai.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
+	dsai.descriptorPool = program->mDescriptorPool;
+	dsai.descriptorSetCount = 1;
+	dsai.pSetLayouts = &program->mDescriptorSetLayout;
+	vkAllocateDescriptorSets(GetVulkanDevice(), &dsai, &program->mDescriptorSet);
+	for (int i = 0; i < program->mWriteDescriptorSet.size(); ++i) {
+		program->mWriteDescriptorSet[i].dstSet = program->mDescriptorSet;
+	}
+	vkUpdateDescriptorSets(GetVulkanDevice(), uint32_t(program->mWriteDescriptorSet.size()), program->mWriteDescriptorSet.data(), 0, nullptr);
 }
