@@ -32,10 +32,10 @@ void Init() {
 	xCreateShader(fs, file_content, file_len);
 	delete[] file_content;
 	// °ó¶¨shader
-	aAttachVertexShader(program, vs);
-	aAttachFragmentShader(program, fs);
+	xAttachVertexShader(program, vs);
+	xAttachFragmentShader(program, fs);
 	// Á´½Óshader
-	aLinkProgram(program);
+	xLinkProgram(program);
 }
 
 void Draw(float deltaTime) {

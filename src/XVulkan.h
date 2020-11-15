@@ -91,3 +91,5 @@ void xCreateShader(VkShaderModule& shader, unsigned char* code, int code_len);
 void xAttachVertexShader(XProgram* program, VkShaderModule shader);
 
 void xAttachFragmentShader(XProgram* program, VkShaderModule shader);
+// Á´½Óprogram
+void xLinkProgram(XProgram* program);
