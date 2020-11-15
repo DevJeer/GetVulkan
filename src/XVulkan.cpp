@@ -1,5 +1,5 @@
-#include "XVulkan.h"
 #include "BVulkan.h"
+#include "XVulkan.h"
 
 XBufferObject::XBufferObject()
 {
@@ -14,6 +14,53 @@ XBufferObject::~XBufferObject()
 	}
 	if (mMemory != 0) {
 		vkFreeMemory(GetVulkanDevice(), mMemory, nullptr);
+	}
+}
+
+XUniformBuffer::XUniformBuffer() {
+	mBuffer = 0;
+	mMemory = 0;
+}
+
+XUniformBuffer::~XUniformBuffer() {
+	if (mBuffer != 0) {
+		vkDestroyBuffer(GetVulkanDevice(), mBuffer, nullptr);
+	}
+	if (mMemory != 0) {
+		vkFreeMemory(GetVulkanDevice(), mMemory, nullptr);
+	}
+}
+
+XProgram::XProgram() {
+	mShaderStagetCount = 0;
+	mVertexShader = 0;
+	mFragmentShader = 0;
+	mDescriptorPool = 0;
+	mDescriptorSetLayout = 0;
+	memset(mShaderStage, 0, sizeof(VkPipelineShaderStageCreateInfo) * 2);
+}
+
+XProgram::~XProgram() {
+	if (mVertexShader != 0) {
+		vkDestroyShaderModule(GetVulkanDevice(), mVertexShader, nullptr);
+	}
+	if (mFragmentShader != 0) {
+		vkDestroyShaderModule(GetVulkanDevice(), mFragmentShader, nullptr);
+	}
+	if (mDescriptorPool != 0) {
+		vkDestroyDescriptorPool(GetVulkanDevice(), mDescriptorPool, nullptr);
+	}
+	if (mDescriptorSetLayout != 0) {
+		vkDestroyDescriptorSetLayout(GetVulkanDevice(), mDescriptorSetLayout, nullptr);
+	}
+	for (int i = 0; i < mWriteDescriptorSet.size(); ++i) {
+		VkWriteDescriptorSet* wds = &mWriteDescriptorSet[i];
+		if (wds->pBufferInfo != nullptr) {
+			delete wds->pBufferInfo;
+		}
+		if (wds->pImageInfo != nullptr) {
+			delete wds->pImageInfo;
+		}
 	}
 }
 

@@ -13,6 +13,51 @@ struct XBufferObject {
 	XBufferObject();
 	~XBufferObject();
 };
+// æÿ’Û
+struct XMatrix4x4f {
+	float mData[16];
+};
+// vec4
+struct XVector4f {
+	float mData[4];
+};
+enum XUniformBufferType {
+	kXUniformBufferTypeMatrix,
+	kXUniformBufferTypeVector,
+	kXUniformBufferTypeCount
+};
+
+struct XUniformBuffer {
+	VkBuffer mBuffer;
+	VkDeviceMemory mMemory;
+	XUniformBufferType mType;
+	std::vector<XMatrix4x4f> mMatrices;
+	std::vector<XVector4f> mVector4s;
+	XUniformBuffer();
+	~XUniformBuffer();
+};
+
+class GraphicPipeline;
+
+struct XProgram {
+	VkPipelineShaderStageCreateInfo mShaderStage[2];
+	int mShaderStagetCount;
+	VkShaderModule mVertexShader, mFragmentShader;
+	VkDescriptorSetLayout mDescriptorSetLayout;
+	std::vector<VkDescriptorSetLayoutBinding> mDescriptorSetLayoutBindings;
+	std::vector<VkDescriptorPoolSize> mDescriptorPoolSize;
+	std::vector<VkWriteDescriptorSet> mWriteDescriptorSet;
+	VkDescriptorSet mDescriptorSet;
+	VkDescriptorPool mDescriptorPool;
+	XUniformBuffer mVertexShaderMatrixUniformBuffer;
+	XUniformBuffer mFragmentShaderMatrixUniformBuffer;
+	XUniformBuffer mVertexShaderVectorUniformBuffer;
+	XUniformBuffer mFragmentShaderVectorUniformBuffer;
+	GraphicPipeline mFixedPipeline;
+	XProgram();
+	~XProgram();
+};
+
 // ÃÓ≥‰vbo bufferdata
 void xglBufferData(XVulkanHandle vbo, int size, void* data);
 // ¥¥Ω®vbo
