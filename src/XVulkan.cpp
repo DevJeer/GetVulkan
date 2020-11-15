@@ -205,7 +205,7 @@ void xAttachFragmentShader(XProgram* program, VkShaderModule shader) {
 }
 
 void xLinkProgram(XProgram* program) {
-	InitDescriptorSetLayout(program);
+	xInitDescriptorSetLayout(program);
 	InitDescriptorPool(program);
 	InitDescriptorSet(program);
 	aSetDescriptorSetLayout(&program->mFixedPipeline, &program->mDescriptorSetLayout);
@@ -215,4 +215,12 @@ void xLinkProgram(XProgram* program) {
 	program->mFixedPipeline.mViewport = { 0.0f,0.0f,float(GetViewportWidth()),float(GetViewportHeight()) };
 	program->mFixedPipeline.mScissor = { {0,0} ,{uint32_t(GetViewportWidth()),uint32_t(GetViewportHeight())} };
 	aCreateGraphicPipeline(&program->mFixedPipeline);
+}
+
+void xInitDescriptorSetLayout(XProgram* program) {
+	VkDescriptorSetLayoutCreateInfo dslci = {};
+	dslci.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
+	dslci.bindingCount = uint32_t(program->mDescriptorSetLayoutBindings.size());
+	dslci.pBindings = program->mDescriptorSetLayoutBindings.data();
+	vkCreateDescriptorSetLayout(GetVulkanDevice(), &dslci, nullptr, &program->mDescriptorSetLayout);
 }

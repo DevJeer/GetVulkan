@@ -93,3 +93,5 @@ void xAttachVertexShader(XProgram* program, VkShaderModule shader);
 void xAttachFragmentShader(XProgram* program, VkShaderModule shader);
 // 链接program
 void xLinkProgram(XProgram* program);
+// 设置uniform在GPU中的数据布局
+void xInitDescriptorSetLayout(XProgram* program);
