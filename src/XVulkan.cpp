@@ -224,8 +224,9 @@ void xLinkProgram(XProgram* program) {
 	program->mVertexShaderVectorUniformBuffer.mVector4s[2].mData[3] = 1.0f;
 	// 生成对应的buffer
 	xGenBuffer(program->mVertexShaderVectorUniformBuffer.mBuffer, program->mVertexShaderVectorUniformBuffer.mMemory,
-		sizeof(XVector4f), VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_COHERENT_BIT | VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT);
+		sizeof(XVector4f) * 8, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_COHERENT_BIT | VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT);
 	xSubmitUniformBuffer(&program->mVertexShaderVectorUniformBuffer);
+	xConfigUniformBuffer(program, 0, &program->mVertexShaderVectorUniformBuffer, VK_SHADER_STAGE_VERTEX_BIT);
 	xInitDescriptorSetLayout(program);
 	xInitDescriptorPool(program);
 	xInitDescriptorSet(program);
@@ -287,4 +288,40 @@ void xSubmitUniformBuffer(XUniformBuffer* uniformbuffer) {
 		memcpy(dst, uniformbuffer->mVector4s.data(), size);
 	}
 	vkUnmapMemory(GetVulkanDevice(), uniformbuffer->mMemory);
+}
+
+void xConfigUniformBuffer(XVulkanHandle param, int bingding, XUniformBuffer* ubo, VkShaderStageFlags shader_stage) {
+	XProgram* program = (XProgram*)param;
+	// 描述gpu中的uniform绑定点的布局
+	VkDescriptorSetLayoutBinding dslb = {};
+	dslb.binding = bingding;
+	dslb.descriptorCount = 1;
+	dslb.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+	dslb.stageFlags = shader_stage;
+	program->mDescriptorSetLayoutBindings.push_back(dslb);
+	// 描述插槽的信息
+	VkDescriptorPoolSize dps = {};
+	dps.descriptorCount = 1; // 插槽是一个
+	dps.type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER; // 插槽的类型的是Uniform_buffer类型的
+	program->mDescriptorPoolSize.push_back(dps);
+	// 关联gpu中的数据
+	VkDescriptorBufferInfo* bufferinfo = new VkDescriptorBufferInfo;
+	bufferinfo->offset = 0;
+	bufferinfo->buffer = ubo->mBuffer;
+	if (ubo->mType == kXUniformBufferTypeMatrix) {
+		bufferinfo->range = sizeof(XMatrix4x4f) * ubo->mMatrices.size();
+	}
+	else {
+		bufferinfo->range = sizeof(XVector4f) * ubo->mVector4s.size();
+	}
+	// cpu中uniform的来源
+	VkWriteDescriptorSet descriptorwriter = {};
+	descriptorwriter.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+	descriptorwriter.dstSet = program->mDescriptorSet;
+	descriptorwriter.dstBinding = bingding;
+	descriptorwriter.dstArrayElement = 0;
+	descriptorwriter.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+	descriptorwriter.descriptorCount = 1;
+	descriptorwriter.pBufferInfo = bufferinfo;
+	program->mWriteDescriptorSet.push_back(descriptorwriter);
 }

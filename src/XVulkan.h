@@ -101,3 +101,5 @@ void xInitDescriptorPool(XProgram* program);
 void xInitDescriptorSet(XProgram* program);
 // 将uniformBuffer写入到gpu中
 void xSubmitUniformBuffer(XUniformBuffer* uniformbuffer);
+// 将uniform cpu->gpu中的路径打通 （补全一些信息） 
+void xConfigUniformBuffer(XVulkanHandle param, int bingding, XUniformBuffer* ubo, VkShaderStageFlags shader_stage);
