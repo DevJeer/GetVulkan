@@ -16,6 +16,14 @@ struct XBufferObject {
 // 矩阵
 struct XMatrix4x4f {
 	float mData[16];
+	// 构造函数初始化为单位矩阵
+	XMatrix4x4f() {
+		memset(mData, 0, sizeof(float) * 16);
+		mData[0] = 1.0f;
+		mData[5] = 1.0f;
+		mData[10] = 1.0f;
+		mData[15] = 1.0f;
+	}
 };
 // vec4
 struct XVector4f {

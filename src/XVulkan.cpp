@@ -227,6 +227,14 @@ void xLinkProgram(XProgram* program) {
 		sizeof(XVector4f) * 8, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_COHERENT_BIT | VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT);
 	xSubmitUniformBuffer(&program->mVertexShaderVectorUniformBuffer);
 	xConfigUniformBuffer(program, 0, &program->mVertexShaderVectorUniformBuffer, VK_SHADER_STAGE_VERTEX_BIT);
+	// ¾ØÕóµÄuniformbuffer
+	program->mVertexShaderMatrixUniformBuffer.mType = kXUniformBufferTypeMatrix;
+	program->mVertexShaderMatrixUniformBuffer.mMatrices.resize(8);
+	xGenBuffer(program->mVertexShaderMatrixUniformBuffer.mBuffer, program->mVertexShaderMatrixUniformBuffer.mMemory,
+		sizeof(XMatrix4x4f) * 8, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_COHERENT_BIT | VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT);
+	xSubmitUniformBuffer(&program->mVertexShaderMatrixUniformBuffer);
+	xConfigUniformBuffer(program, 1, &program->mVertexShaderMatrixUniformBuffer, VK_SHADER_STAGE_VERTEX_BIT);
+
 	xInitDescriptorSetLayout(program);
 	xInitDescriptorPool(program);
 	xInitDescriptorSet(program);
