@@ -99,3 +99,5 @@ void xInitDescriptorSetLayout(XProgram* program);
 void xInitDescriptorPool(XProgram* program);
 
 void xInitDescriptorSet(XProgram* program);
+// 将uniformBuffer写入到gpu中
+void xSubmitUniformBuffer(XUniformBuffer* uniformbuffer);
