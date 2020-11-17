@@ -7,9 +7,12 @@ layout(binding = 0)uniform AliceBuiltinVertexVectors{
 	vec4 Value[8];
 } U_DefaultVertexVectors;
 layout(binding = 1)uniform AliceBuiltinVertexMatrix{
-	mat4 Value[8];
+	mat4 Model;
+	mat4 View;
+	mat4 Projection;
+	mat4 IT_Model;
 } U_DefaultVertexMatrices;
 void main(){
 	V_Color=texcoord*U_DefaultVertexVectors.Value[gl_VertexIndex];
-	gl_Position=U_DefaultVertexMatrices.Value[0] * position;
+	gl_Position=U_DefaultVertexMatrices.Projection * U_DefaultVertexMatrices.View * U_DefaultVertexMatrices.Model * position;
 }

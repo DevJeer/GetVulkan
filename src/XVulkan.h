@@ -5,6 +5,8 @@
 #include <set>
 #include <map>
 #include <algorithm>
+#include "../third-party/Glm/glm.hpp"
+#include "../third-party/Glm/ext.hpp"
 typedef void* XVulkanHandle;
 
 struct XBufferObject {

@@ -230,6 +230,10 @@ void xLinkProgram(XProgram* program) {
 	// 矩阵的uniformbuffer
 	program->mVertexShaderMatrixUniformBuffer.mType = kXUniformBufferTypeMatrix;
 	program->mVertexShaderMatrixUniformBuffer.mMatrices.resize(8);
+	glm::mat4 projection = glm::perspective(45.0f, float(GetViewportWidth()) / float(GetViewportHeight()), 0.1f, 100.0f);
+	projection[1][1] *= -1.0f;
+	// 2号位置为projection 投影矩阵，需要改变
+	memcpy(program->mVertexShaderMatrixUniformBuffer.mMatrices[2].mData, glm::value_ptr(projection), sizeof(XMatrix4x4f));
 	xGenBuffer(program->mVertexShaderMatrixUniformBuffer.mBuffer, program->mVertexShaderMatrixUniformBuffer.mMemory,
 		sizeof(XMatrix4x4f) * 8, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_COHERENT_BIT | VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT);
 	xSubmitUniformBuffer(&program->mVertexShaderMatrixUniformBuffer);
