@@ -395,3 +395,38 @@ void xGenImage(XTexture* texture, uint32_t w, uint32_t h, VkFormat f,
 	// 绑定image 和 物理内存
 	vkBindImageMemory(GetVulkanDevice(), texture->mImage, texture->mMemory, 0);
 }
+
+void xSubmitImage2D(XTexture* texture, int width, int height, const void* pixel) {
+	// 计算图片的大小
+	VkDeviceSize image_size = width * height;
+	if (texture->mFormat == VK_FORMAT_R8G8B8A8_UNORM) {
+		image_size *= 4;
+	}
+	// 创建临时内存，用来拷贝cpu中的数据
+	VkBuffer tempbuffer;
+	VkDeviceMemory tempmemory;
+	xGenBuffer(tempbuffer, tempmemory, image_size, VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
+		VK_MEMORY_PROPERTY_HOST_COHERENT_BIT | VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT);
+	void* data;
+	// 将数据从pixel 拷贝到 data
+	vkMapMemory(GetVulkanDevice(), tempmemory, 0, image_size, 0, &data);
+	memcpy(data, pixel, image_size);
+	vkUnmapMemory(GetVulkanDevice(), tempmemory);
+
+	// 拷贝数据
+	VkCommandBuffer commandbuffer;
+	xBeginOneTimeCommandBuffer(&commandbuffer);
+	VkBufferImageCopy copy = {};
+	copy.imageSubresource.aspectMask = texture->mImageAspectFlag;
+	copy.imageSubresource.mipLevel = 0;
+	copy.imageSubresource.baseArrayLayer = 0;
+	copy.imageSubresource.layerCount = 1;
+
+	copy.imageOffset = { 0,0,0 };
+	copy.imageExtent = { uint32_t(width),uint32_t(height),1 };
+	vkCmdCopyBufferToImage(commandbuffer, tempbuffer, texture->mImage,
+		VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &copy);
+	xEndOneTimeCommandBuffer(commandbuffer);
+	vkDestroyBuffer(GetVulkanDevice(), tempbuffer, nullptr);
+	vkFreeMemory(GetVulkanDevice(), tempmemory, nullptr);
+}
