@@ -68,6 +68,38 @@ struct XProgram {
 	~XProgram();
 };
 
+struct XTexture {
+	// 逻辑对象
+	VkImage mImage;
+	// 物体内存
+	VkDeviceMemory mMemory;
+	// 插槽类似的对象，必须通过这个来访问逻辑对象
+	VkImageView mImageView;
+	// gpu中shader使用的image（image在gpu中的表现）
+	VkSampler mSampler;
+	// 表示imageLayout 初始状态
+	VkImageLayout mInitLayout;
+	// 最终要成为什么状态
+	VkImageLayout mTargetLayout;
+	// 在pipeline中源阶段
+	VkPipelineStageFlags mSrcStage;
+	// 最终要在哪个阶段使用
+	VkPipelineStageFlags mTargetStage;
+	// 表示颜色或者深度图
+	VkImageAspectFlags mImageAspectFlag;
+	// texture的格式
+	VkFormat mFormat;
+	// 纹理过滤的方式
+	VkFilter mMinFilter, mMagFilter;
+	// 边界重复的方式
+	VkSamplerAddressMode mWrapU, mWrapV, mWrapW;
+	// 硬件相关的选项（类似msaa?）
+	VkBool32 mbEnableAnisotropy;
+	float mMaxAnisotropy;
+	XTexture(VkImageAspectFlags image_aspect = VK_IMAGE_ASPECT_COLOR_BIT);
+	~XTexture();
+};
+
 // 填充vbo bufferdata
 void xglBufferData(XVulkanHandle vbo, int size, void* data);
 // 创建vbo
@@ -113,3 +145,6 @@ void xInitDescriptorSet(XProgram* program);
 void xSubmitUniformBuffer(XUniformBuffer* uniformbuffer);
 // 将uniform cpu->gpu中的路径打通 （补全一些信息） 
 void xConfigUniformBuffer(XVulkanHandle param, int bingding, XUniformBuffer* ubo, VkShaderStageFlags shader_stage);
+// 生成image
+void xGenImage(XTexture* texture, uint32_t w, uint32_t h, VkFormat f,
+	VkImageUsageFlags usage, VkSampleCountFlagBits sample_count = VK_SAMPLE_COUNT_1_BIT, int mipmap = 1);

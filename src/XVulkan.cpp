@@ -65,6 +65,38 @@ XProgram::~XProgram() {
 	}
 }
 
+XTexture::XTexture(VkImageAspectFlags image_aspect) {
+	mImageAspectFlag = image_aspect;
+	mImage = 0;
+	mImageView = 0;
+	mMemory = 0;
+	mSampler = 0;
+	mInitLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+	mTargetLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+	mMinFilter = VK_FILTER_LINEAR;
+	mMagFilter = VK_FILTER_LINEAR;
+	mWrapU = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
+	mWrapV = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
+	mWrapW = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
+	mbEnableAnisotropy = VK_FALSE;
+	mMaxAnisotropy = 0.0f;
+}
+
+XTexture::~XTexture() {
+	if (mMemory != 0) {
+		vkFreeMemory(GetVulkanDevice(), mMemory, nullptr);
+	}
+	if (mImageView != 0) {
+		vkDestroyImageView(GetVulkanDevice(), mImageView, nullptr);
+	}
+	if (mImage != 0) {
+		vkDestroyImage(GetVulkanDevice(), mImage, nullptr);
+	}
+	if (mSampler != 0) {
+		vkDestroySampler(GetVulkanDevice(), mSampler, nullptr);
+	}
+}
+
 void xglBufferData(XVulkanHandle buffer, int size, void* data) {
 	// CPU端运行， 分配vbo
 	XBufferObject* vbo = (XBufferObject*)buffer;
@@ -336,4 +368,30 @@ void xConfigUniformBuffer(XVulkanHandle param, int bingding, XUniformBuffer* ubo
 	descriptorwriter.descriptorCount = 1;
 	descriptorwriter.pBufferInfo = bufferinfo;
 	program->mWriteDescriptorSet.push_back(descriptorwriter);
+}
+
+void xGenImage(XTexture* texture, uint32_t w, uint32_t h, VkFormat f,
+	VkImageUsageFlags usage, VkSampleCountFlagBits sample_count, int mipmap) {
+	VkImageCreateInfo ici = {};
+	ici.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
+	ici.imageType = VK_IMAGE_TYPE_2D;
+	ici.extent = { w,h,1 };
+	ici.mipLevels = mipmap;
+	ici.arrayLayers = 1;
+	ici.format = f;
+	ici.initialLayout = texture->mInitLayout;
+	ici.usage = usage;
+	ici.samples = sample_count;
+	if (vkCreateImage(GetVulkanDevice(), &ici, nullptr, &texture->mImage) != VK_SUCCESS) {
+		printf("failed to create image\n");
+	}
+	VkMemoryRequirements memory_requirements;
+	vkGetImageMemoryRequirements(GetVulkanDevice(), texture->mImage, &memory_requirements);
+	VkMemoryAllocateInfo mai = {};
+	mai.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
+	mai.allocationSize = memory_requirements.size;
+	mai.memoryTypeIndex = xGetMemoryType(memory_requirements.memoryTypeBits, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
+	vkAllocateMemory(GetVulkanDevice(), &mai, nullptr, &texture->mMemory);
+	// 绑定image 和 物理内存
+	vkBindImageMemory(GetVulkanDevice(), texture->mImage, texture->mMemory, 0);
 }
