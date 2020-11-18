@@ -430,3 +430,74 @@ void xSubmitImage2D(XTexture* texture, int width, int height, const void* pixel)
 	vkDestroyBuffer(GetVulkanDevice(), tempbuffer, nullptr);
 	vkFreeMemory(GetVulkanDevice(), tempmemory, nullptr);
 }
+
+void xInitSrcAccessMask(VkImageLayout oldLayout, VkImageMemoryBarrier& barrier) {
+	switch (oldLayout) {
+	case VK_IMAGE_LAYOUT_UNDEFINED:
+		barrier.srcAccessMask = 0;
+		break;
+	case VK_IMAGE_LAYOUT_PREINITIALIZED:
+		barrier.srcAccessMask = VK_ACCESS_HOST_WRITE_BIT;
+		break;
+	case VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL:
+		barrier.srcAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+		break;
+	case VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL:
+		barrier.srcAccessMask = VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
+		break;
+	case VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL:
+		barrier.srcAccessMask = VK_ACCESS_TRANSFER_READ_BIT;
+		break;
+	case VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL:
+		barrier.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
+		break;
+	case VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL:
+		barrier.srcAccessMask = VK_ACCESS_SHADER_READ_BIT;
+		break;
+	default:
+		printf("init src access mask : unprocessed %d\n", oldLayout);
+		break;
+	}
+}
+
+void xInitDstAccessMask(VkImageLayout newLayout, VkImageMemoryBarrier& barrier) {
+	switch (newLayout) {
+	case VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL:
+		barrier.dstAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
+		break;
+	case VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL:
+		barrier.dstAccessMask = VK_ACCESS_TRANSFER_READ_BIT;
+		break;
+	case VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL:
+		barrier.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+		break;
+	case VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL:
+		barrier.dstAccessMask = VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT | barrier.dstAccessMask;
+		break;
+	case VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL:
+		if (barrier.srcAccessMask == 0) {
+			barrier.srcAccessMask = VK_ACCESS_HOST_WRITE_BIT | VK_ACCESS_TRANSFER_WRITE_BIT;
+		}
+		barrier.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
+		break;
+	default:
+		printf("init dst access mask : unprocessed %d\n", newLayout);
+		break;
+	}
+}
+
+void xSetImageLayout(VkCommandBuffer commandbuffer, VkImage image, VkImageLayout oldLayout,
+	VkImageLayout newLayout, VkImageSubresourceRange subresourcerange,
+	VkPipelineStageFlags src, VkPipelineStageFlags dst) {
+	VkImageMemoryBarrier barrier = {};
+	barrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
+	barrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+	barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+	barrier.oldLayout = oldLayout;
+	barrier.newLayout = newLayout;
+	barrier.image = image;
+	barrier.subresourceRange = subresourcerange;
+	xInitSrcAccessMask(oldLayout, barrier);
+	xInitDstAccessMask(newLayout, barrier);
+	vkCmdPipelineBarrier(commandbuffer, src, dst, 0, 0, nullptr, 0, nullptr, 1, &barrier);
+}

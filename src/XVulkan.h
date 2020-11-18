@@ -150,3 +150,7 @@ void xGenImage(XTexture* texture, uint32_t w, uint32_t h, VkFormat f,
 	VkImageUsageFlags usage, VkSampleCountFlagBits sample_count = VK_SAMPLE_COUNT_1_BIT, int mipmap = 1);
 // 将image从cpu拷贝到gpu中
 void xSubmitImage2D(XTexture* texture, int width, int height, const void* pixel);
+// 设置image的访问模式
+void xSetImageLayout(VkCommandBuffer commandbuffer, VkImage image, VkImageLayout oldLayout, VkImageLayout newLayout,
+	VkImageSubresourceRange subresourcerange, VkPipelineStageFlags src = VK_PIPELINE_STAGE_ALL_COMMANDS_BIT,
+	VkPipelineStageFlags dst = VK_PIPELINE_STAGE_ALL_COMMANDS_BIT);
