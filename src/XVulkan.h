@@ -154,3 +154,5 @@ void xSubmitImage2D(XTexture* texture, int width, int height, const void* pixel)
 void xSetImageLayout(VkCommandBuffer commandbuffer, VkImage image, VkImageLayout oldLayout, VkImageLayout newLayout,
 	VkImageSubresourceRange subresourcerange, VkPipelineStageFlags src = VK_PIPELINE_STAGE_ALL_COMMANDS_BIT,
 	VkPipelineStageFlags dst = VK_PIPELINE_STAGE_ALL_COMMANDS_BIT);
+// Éú³ÉImageView
+void xGenImageView2D(XTexture* texture, int mipmap = 1);

@@ -501,3 +501,17 @@ void xSetImageLayout(VkCommandBuffer commandbuffer, VkImage image, VkImageLayout
 	xInitDstAccessMask(newLayout, barrier);
 	vkCmdPipelineBarrier(commandbuffer, src, dst, 0, 0, nullptr, 0, nullptr, 1, &barrier);
 }
+
+void xGenImageView2D(XTexture* texture, int mipmap /* = 1 */) {
+	VkImageViewCreateInfo ivci = {};
+	ivci.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
+	ivci.image = texture->mImage;
+	ivci.viewType = VK_IMAGE_VIEW_TYPE_2D;
+	ivci.format = texture->mFormat;
+	ivci.subresourceRange.aspectMask = texture->mImageAspectFlag;
+	ivci.subresourceRange.baseMipLevel = 0;
+	ivci.subresourceRange.levelCount = mipmap;
+	ivci.subresourceRange.baseArrayLayer = 0;
+	ivci.subresourceRange.layerCount = 1;
+	vkCreateImageView(GetVulkanDevice(), &ivci, nullptr, &texture->mImageView);
+}
