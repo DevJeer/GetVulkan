@@ -271,6 +271,9 @@ void xLinkProgram(XProgram* program) {
 	xSubmitUniformBuffer(&program->mVertexShaderMatrixUniformBuffer);
 	xConfigUniformBuffer(program, 1, &program->mVertexShaderMatrixUniformBuffer, VK_SHADER_STAGE_VERTEX_BIT);
 
+	// 纹理 texture 这里纹理不需要初始化是因为在初始的时候已经初始化过了
+	xConfigSampler2D(program, 4, sDefaultTexture->mImageView, sDefaultTexture->mSampler);
+
 	xInitDescriptorSetLayout(program);
 	xInitDescriptorPool(program);
 	xInitDescriptorSet(program);
@@ -416,6 +419,8 @@ void xSubmitImage2D(XTexture* texture, int width, int height, const void* pixel)
 	// 拷贝数据
 	VkCommandBuffer commandbuffer;
 	xBeginOneTimeCommandBuffer(&commandbuffer);
+	VkImageSubresourceRange subresourcerange = { texture->mImageAspectFlag,0,1,0,1 };
+	xSetImageLayout(commandbuffer, texture->mImage, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, subresourcerange);
 	VkBufferImageCopy copy = {};
 	copy.imageSubresource.aspectMask = texture->mImageAspectFlag;
 	copy.imageSubresource.mipLevel = 0;
@@ -537,7 +542,7 @@ void xInitDefaultTexture() {
 	sDefaultTexture = new XTexture;
 	sDefaultTexture->mFormat = VK_FORMAT_R8G8B8A8_UNORM;
 	unsigned char* pixel = new unsigned char[256 * 256 * 4];
-	memset(pixel, 0, sizeof(unsigned char) * 256 * 256 * 4);
+	memset(pixel, 255, sizeof(unsigned char) * 256 * 256 * 4);
 	// 生成Image对象
 	xGenImage(sDefaultTexture, 256, 256, VK_FORMAT_R8G8B8A8_UNORM, VK_IMAGE_USAGE_TRANSFER_DST_BIT |
 		VK_IMAGE_USAGE_SAMPLED_BIT);
@@ -548,6 +553,38 @@ void xInitDefaultTexture() {
 	// 生成Sampler对象
 	xGenSampler(sDefaultTexture);
 	delete[] pixel;
+}
+
+void xConfigSampler2D(XProgram* program, int binding, VkImageView imageview, VkSampler sampler,
+	VkImageLayout layout) {
+	// shader中具体绑定的信息
+	VkDescriptorSetLayoutBinding layoutbinding = {};
+	layoutbinding.binding = binding;
+	layoutbinding.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+	layoutbinding.descriptorCount = 1;
+	layoutbinding.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
+	layoutbinding.pImmutableSamplers = nullptr;
+	program->mDescriptorSetLayoutBindings.push_back(layoutbinding);
+	// 存储插槽的信息
+	VkDescriptorPoolSize poolsize = {};
+	poolsize.type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+	poolsize.descriptorCount = 1;
+	program->mDescriptorPoolSize.push_back(poolsize);
+	// ImageInfo
+	VkDescriptorImageInfo* imageinfo = new VkDescriptorImageInfo;
+	imageinfo->imageLayout = layout;
+	imageinfo->imageView = imageview;
+	imageinfo->sampler = sampler;
+	// cpu中的数据位置
+	VkWriteDescriptorSet wds = {};
+	wds.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+	wds.dstSet = program->mDescriptorSet;
+	wds.dstBinding = binding;
+	wds.dstArrayElement = 0;
+	wds.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+	wds.descriptorCount = 1;
+	wds.pImageInfo = imageinfo;
+	program->mWriteDescriptorSet.push_back(wds);
 }
 
 void xVulkanCleanUp() {

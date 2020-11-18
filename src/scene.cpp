@@ -9,11 +9,14 @@ void Init() {
 	xInitDefaultTexture();
 	Vertex vertexes[3];
 	vertexes[0].SetPosition(-0.5f, -0.5f, -2.0f);
-	vertexes[0].SetTexcoord(1.0f, 0.0f, 1.0f, 1.0f);
+	vertexes[0].SetTexcoord(0.0f, 0.0f);
+	vertexes[0].SetNormal(1.0f, 0.0f, 1.0f, 1.0f);
 	vertexes[1].SetPosition(0.5f, -0.5f, -2.0f);
-	vertexes[1].SetTexcoord(1.0f, 1.0f, 0.0f, 1.0f);
+	vertexes[1].SetTexcoord(1.0f, 0.0f);
+	vertexes[1].SetNormal(1.0f, 1.0f, 0.0f, 1.0f);
 	vertexes[2].SetPosition(0.0f, 0.5f, -2.0f);
-	vertexes[2].SetTexcoord(0.0f, 1.0f, 1.0f, 1.0f);
+	vertexes[2].SetTexcoord(0.5f, 1.0f);
+	vertexes[2].SetNormal(0.0f, 1.0f, 1.0f, 1.0f);
 	// ´´½¨buffer
 	vbo = new XBufferObject;
 	// Ìî³äbuffer

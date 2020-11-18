@@ -162,3 +162,6 @@ void xGenSampler(XTexture* texture);
 void xInitDefaultTexture();
 // 退出时，清除默认贴图的资源
 void xVulkanCleanUp();
+// 配置sampler2D
+void xConfigSampler2D(XProgram* program, int binding, VkImageView imageview, VkSampler sampler,
+	VkImageLayout layout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
