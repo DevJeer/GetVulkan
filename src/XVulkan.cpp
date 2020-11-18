@@ -515,3 +515,20 @@ void xGenImageView2D(XTexture* texture, int mipmap /* = 1 */) {
 	ivci.subresourceRange.layerCount = 1;
 	vkCreateImageView(GetVulkanDevice(), &ivci, nullptr, &texture->mImageView);
 }
+
+void xGenSampler(XTexture* texture) {
+	VkSamplerCreateInfo samplercreateinfo = {};
+	samplercreateinfo.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
+	// 过滤方式
+	samplercreateinfo.minFilter = texture->mMinFilter;
+	samplercreateinfo.magFilter = texture->mMagFilter;
+	// 边界重复的方式
+	samplercreateinfo.addressModeU = texture->mWrapU;
+	samplercreateinfo.addressModeV = texture->mWrapV;
+	samplercreateinfo.addressModeW = texture->mWrapW;
+	samplercreateinfo.anisotropyEnable = texture->mbEnableAnisotropy;
+	samplercreateinfo.maxAnisotropy = texture->mMaxAnisotropy;
+	// 采样到边界使用的颜色
+	samplercreateinfo.borderColor = VK_BORDER_COLOR_INT_OPAQUE_BLACK;
+	vkCreateSampler(GetVulkanDevice(), &samplercreateinfo, nullptr, &texture->mSampler);
+}
