@@ -44,9 +44,25 @@ void Init() {
 
 void Draw(float deltaTime) {
 	static float r = 0.0f;
+	static float accTime = 0.0f;
+	// 是否需要改变texture
+	static bool modifiedTexture = false;
 	r += deltaTime;
+	accTime += deltaTime;
 	if (r >= 1.0f) {
 		r = 0.0f;
+	}
+	if (accTime > 3.0f) {
+		if (modifiedTexture == false) {
+			modifiedTexture = true;
+			int image_width, image_height, channel;
+			// 加载图片
+			unsigned char* pixel = LoadImageFromFile("Res/textures/test.bmp", image_width, image_height, channel, 4);
+			// 更新texture
+			xSubmitImage2D(xGetDefaultTexture(), image_width, image_height, pixel);
+			// 释放pixel内存
+			delete[] pixel;
+		}
 	}
 	float color[] = { r,r,r,1.0f };
 	aClearColor(0.1f, 0.4f, 0.6f, 1.0f);

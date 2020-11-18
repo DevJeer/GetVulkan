@@ -27,6 +27,9 @@
     <ClCompile Include="src\XVulkan.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="third-party\stb_image_aug.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\BVulkan.h">
@@ -36,6 +39,9 @@
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="src\XVulkan.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="third-party\stb_image_aug.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>

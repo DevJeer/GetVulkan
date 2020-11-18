@@ -149,11 +149,13 @@
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\scene.cpp" />
     <ClCompile Include="src\XVulkan.cpp" />
+    <ClCompile Include="third-party\stb_image_aug.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\BVulkan.h" />
     <ClInclude Include="src\scene.h" />
     <ClInclude Include="src\XVulkan.h" />
+    <ClInclude Include="third-party\stb_image_aug.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Res\test.fs" />

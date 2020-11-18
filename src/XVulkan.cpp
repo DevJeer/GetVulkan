@@ -1,5 +1,6 @@
 #include "BVulkan.h"
 #include "XVulkan.h"
+#include "../third-party/stb_image_aug.h"
 static XTexture* sDefaultTexture = nullptr;
 XBufferObject::XBufferObject()
 {
@@ -431,6 +432,8 @@ void xSubmitImage2D(XTexture* texture, int width, int height, const void* pixel)
 	copy.imageExtent = { uint32_t(width),uint32_t(height),1 };
 	vkCmdCopyBufferToImage(commandbuffer, tempbuffer, texture->mImage,
 		VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &copy);
+	xSetImageLayout(commandbuffer, texture->mImage, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+		VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, subresourcerange);
 	xEndOneTimeCommandBuffer(commandbuffer);
 	vkDestroyBuffer(GetVulkanDevice(), tempbuffer, nullptr);
 	vkFreeMemory(GetVulkanDevice(), tempmemory, nullptr);
@@ -592,6 +595,35 @@ void xUniform4fv(XProgram* program, int location, float* v) {
 	memcpy(program->mVertexShaderVectorUniformBuffer.mVector4s[location].mData, v, sizeof(XVector4f));
 	// 再提交到gpu中
 	xSubmitUniformBuffer(&program->mVertexShaderVectorUniformBuffer);
+}
+
+unsigned char* LoadImageFromFile(const char* path, int& width, int& height, int& channel,
+	int force_channel, bool flipY) {
+	unsigned char* result = stbi_load(path, &width, &height, &channel, force_channel);
+	if (result == nullptr) {
+		return nullptr;
+	}
+	// 翻转图片
+	// stb中默认左上角为0 0点
+	// 翻转的算法，（以后看）
+	if (false == flipY) {
+		for (int j = 0; j * 2 < height; ++j) {
+			int index1 = j * width * channel;
+			int index2 = (height - 1 - j) * width * channel;
+			for (int i = width * channel; i > 0; --i) {
+				unsigned char temp = result[index1];
+				result[index1] = result[index2];
+				result[index2] = temp;
+				++index1;
+				++index2;
+			}
+		}
+	}
+	return result;
+}
+
+XTexture* xGetDefaultTexture() {
+	return sDefaultTexture;
 }
 
 void xVulkanCleanUp() {

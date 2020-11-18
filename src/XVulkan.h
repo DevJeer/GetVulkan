@@ -167,3 +167,8 @@ void xConfigSampler2D(XProgram* program, int binding, VkImageView imageview, VkS
 	VkImageLayout layout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
 // 更新uniform buffer (vetcor4f)
 void xUniform4fv(XProgram* program, int location, float* v);
+// 加载图片 channel为通道  force_channel为强制通道
+unsigned char* LoadImageFromFile(const char* path, int& width, int& height, int& channel, int force_channel
+	, bool flipY = false);
+// 获取默认的texture
+XTexture* xGetDefaultTexture();
