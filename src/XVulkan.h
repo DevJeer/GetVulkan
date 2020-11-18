@@ -165,3 +165,5 @@ void xVulkanCleanUp();
 // ÅäÖÃsampler2D
 void xConfigSampler2D(XProgram* program, int binding, VkImageView imageview, VkSampler sampler,
 	VkImageLayout layout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+// ¸üÐÂuniform buffer (vetcor4f)
+void xUniform4fv(XProgram* program, int location, float* v);

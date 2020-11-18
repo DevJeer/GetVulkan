@@ -587,6 +587,13 @@ void xConfigSampler2D(XProgram* program, int binding, VkImageView imageview, VkS
 	program->mWriteDescriptorSet.push_back(wds);
 }
 
+void xUniform4fv(XProgram* program, int location, float* v) {
+	// 先将数据拷贝到对应的location位置上
+	memcpy(program->mVertexShaderVectorUniformBuffer.mVector4s[location].mData, v, sizeof(XVector4f));
+	// 再提交到gpu中
+	xSubmitUniformBuffer(&program->mVertexShaderVectorUniformBuffer);
+}
+
 void xVulkanCleanUp() {
 	if (sDefaultTexture != nullptr) {
 		// 释放纹理资源
