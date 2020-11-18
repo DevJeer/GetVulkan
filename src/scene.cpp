@@ -6,6 +6,7 @@ XProgram* program = nullptr;
 XBufferObject *vbo = nullptr;
 
 void Init() {
+	xInitDefaultTexture();
 	Vertex vertexes[3];
 	vertexes[0].SetPosition(-0.5f, -0.5f, -2.0f);
 	vertexes[0].SetTexcoord(1.0f, 0.0f, 1.0f, 1.0f);
@@ -61,4 +62,5 @@ void OnQuit() {
 	if (vbo != nullptr) {
 		glDeleteBufferObject(vbo);
 	}
+	xVulkanCleanUp();
 }

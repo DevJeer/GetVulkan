@@ -1,6 +1,6 @@
 #include "BVulkan.h"
 #include "XVulkan.h"
-
+static XTexture* sDefaultTexture = nullptr;
 XBufferObject::XBufferObject()
 {
 	mBuffer = 0;
@@ -531,4 +531,28 @@ void xGenSampler(XTexture* texture) {
 	// 采样到边界使用的颜色
 	samplercreateinfo.borderColor = VK_BORDER_COLOR_INT_OPAQUE_BLACK;
 	vkCreateSampler(GetVulkanDevice(), &samplercreateinfo, nullptr, &texture->mSampler);
+}
+
+void xInitDefaultTexture() {
+	sDefaultTexture = new XTexture;
+	sDefaultTexture->mFormat = VK_FORMAT_R8G8B8A8_UNORM;
+	unsigned char* pixel = new unsigned char[256 * 256 * 4];
+	memset(pixel, 0, sizeof(unsigned char) * 256 * 256 * 4);
+	// 生成Image对象
+	xGenImage(sDefaultTexture, 256, 256, VK_FORMAT_R8G8B8A8_UNORM, VK_IMAGE_USAGE_TRANSFER_DST_BIT |
+		VK_IMAGE_USAGE_SAMPLED_BIT);
+	// 将数据copy到gpu中
+	xSubmitImage2D(sDefaultTexture, 256, 256, pixel);
+	// 生成ImageView
+	xGenImageView2D(sDefaultTexture);
+	// 生成Sampler对象
+	xGenSampler(sDefaultTexture);
+	delete[] pixel;
+}
+
+void xVulkanCleanUp() {
+	if (sDefaultTexture != nullptr) {
+		// 释放纹理资源
+		delete sDefaultTexture;
+	}
 }

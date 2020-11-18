@@ -158,3 +158,7 @@ void xSetImageLayout(VkCommandBuffer commandbuffer, VkImage image, VkImageLayout
 void xGenImageView2D(XTexture* texture, int mipmap = 1);
 // 生成sampler 在shader中访问纹理的时候使用
 void xGenSampler(XTexture* texture);
+// 初始化默认纹理贴图
+void xInitDefaultTexture();
+// 退出时，清除默认贴图的资源
+void xVulkanCleanUp();
