@@ -626,6 +626,22 @@ XTexture* xGetDefaultTexture() {
 	return sDefaultTexture;
 }
 
+void xRebindUniformBuffer(XProgram* program, int binding, XUniformBuffer* ubo) {
+	VkDescriptorBufferInfo* bufferinfo = new VkDescriptorBufferInfo;
+	bufferinfo->buffer = ubo->mBuffer;
+	bufferinfo->offset = 0;
+	if (ubo->mType == kXUniformBufferTypeMatrix) {
+		bufferinfo->range = sizeof(XMatrix4x4f) * ubo->mMatrices.size();
+	}
+	else {
+		bufferinfo->range = sizeof(XVector4f) * ubo->mVector4s.size();
+	}
+	delete program->mWriteDescriptorSet[binding].pBufferInfo;
+	program->mWriteDescriptorSet[binding].pBufferInfo = bufferinfo;
+	vkUpdateDescriptorSets(GetVulkanDevice(), uint32_t(program->mWriteDescriptorSet.size()),
+		program->mWriteDescriptorSet.data(), 0, nullptr);
+}
+
 void xVulkanCleanUp() {
 	if (sDefaultTexture != nullptr) {
 		// 释放纹理资源

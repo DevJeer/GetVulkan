@@ -172,3 +172,5 @@ unsigned char* LoadImageFromFile(const char* path, int& width, int& height, int&
 	, bool flipY = false);
 // 获取默认的texture
 XTexture* xGetDefaultTexture();
+// 重新绑定uniform buffer
+void xRebindUniformBuffer(XProgram* program, int binding, XUniformBuffer* ubo);

@@ -4,6 +4,7 @@
 
 XProgram* program = nullptr;
 XBufferObject *vbo = nullptr;
+XUniformBuffer* ubo = nullptr;
 
 void Init() {
 	xInitDefaultTexture();
@@ -40,6 +41,17 @@ void Init() {
 	xAttachFragmentShader(program, fs);
 	// 链接shader
 	xLinkProgram(program);
+
+	ubo = new XUniformBuffer;
+	ubo->mType = kXUniformBufferTypeMatrix;
+	ubo->mMatrices.resize(8);
+	glm::mat4 projection = glm::perspective(60.0f, float(GetViewportWidth()) / float(GetViewportHeight()), 0.1f, 100.0f);
+	projection[1][1] *= -1.0f;
+	memcpy(ubo->mMatrices[2].mData, glm::value_ptr(projection), sizeof(XMatrix4x4f));
+	xGenBuffer(ubo->mBuffer, ubo->mMemory, sizeof(XMatrix4x4f) * 8,
+		VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_COHERENT_BIT |
+		VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT);
+	xSubmitUniformBuffer(ubo);
 }
 
 void Draw(float deltaTime) {
@@ -47,6 +59,8 @@ void Draw(float deltaTime) {
 	static float accTime = 0.0f;
 	// 是否需要改变texture
 	static bool modifiedTexture = false;
+	// 是否需要更新UBO
+	static bool modifiedUBO = false;
 	r += deltaTime;
 	accTime += deltaTime;
 	if (r >= 1.0f) {
@@ -62,6 +76,12 @@ void Draw(float deltaTime) {
 			xSubmitImage2D(xGetDefaultTexture(), image_width, image_height, pixel);
 			// 释放pixel内存
 			delete[] pixel;
+		}
+	}
+	if (accTime > 2.0f) {
+		if (modifiedUBO == false) {
+			modifiedUBO = true;
+			xRebindUniformBuffer(program, 1, ubo);
 		}
 	}
 	float color[] = { r,r,r,1.0f };
@@ -84,6 +104,10 @@ void OnViewportChanged(int width, int height) {
 void OnQuit() {
 	if (program != nullptr) {
 		delete program;
+	}
+	// 释放ubo的资源
+	if (ubo != nullptr) {
+		delete ubo;
 	}
 
 	if (vbo != nullptr) {
