@@ -2,6 +2,10 @@
 #include "XVulkan.h"
 #include "../third-party/stb_image_aug.h"
 static XTexture* sDefaultTexture = nullptr;
+// 当前的shader program
+static XProgram* sCurrentProgram = nullptr;
+// 当前的vbo
+static XBufferObject* sCurrentVBO = nullptr;
 XBufferObject::XBufferObject()
 {
 	mBuffer = 0;
@@ -667,6 +671,29 @@ void xRebindSampler(XProgram* program, int binding, VkImageView iv, VkSampler s,
 	program->mWriteDescriptorSet[binding].pImageInfo = bufferinfo;
 	vkUpdateDescriptorSets(GetVulkanDevice(), uint32_t(program->mWriteDescriptorSet.size()),
 		program->mWriteDescriptorSet.data(), 0, nullptr);
+}
+
+void xUseProgram(XProgram* program) {
+	sCurrentProgram = program;
+}
+
+void xBindVertexBuffer(XBufferObject* vbo) {
+	sCurrentVBO = vbo;
+}
+
+void xDrawArrays(VkCommandBuffer commandbuffer, int offset, int count) {
+	aSetDynamicState(&sCurrentProgram->mFixedPipeline, commandbuffer);
+	VkBuffer vertexbuffers[] = { sCurrentVBO->mBuffer };
+	VkDeviceSize offsets[] = { 0 };
+	vkCmdBindPipeline(commandbuffer, VK_PIPELINE_BIND_POINT_GRAPHICS,
+		sCurrentProgram->mFixedPipeline.mPipeline);
+	vkCmdBindVertexBuffers(commandbuffer, 0, 1, vertexbuffers, offsets);
+	if (sCurrentProgram->mDescriptorSet != 0) {
+		vkCmdBindDescriptorSets(commandbuffer, VK_PIPELINE_BIND_POINT_GRAPHICS,
+			sCurrentProgram->mFixedPipeline.mPipelineLayout, 0, 1, &sCurrentProgram->mDescriptorSet,
+			0, nullptr);
+	}
+	vkCmdDraw(commandbuffer, count, 1, offset, 0);
 }
 
 void xVulkanCleanUp() {

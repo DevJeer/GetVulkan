@@ -93,11 +93,11 @@ void Draw(float deltaTime) {
 	float color[] = { r,r,r,1.0f };
 	aClearColor(0.1f, 0.4f, 0.6f, 1.0f);
 	VkCommandBuffer commandbuffer = aBeginRendering();
-	glUseProgram(program);
-	glBindVertexBuffer(vbo);
+	xUseProgram(program);
+	xBindVertexBuffer(vbo);
 	// 更新veretxbuffer 中 2号vec的颜色
 	xUniform4fv(program, 2, color);
-	glDrawArrays(A_TRIANGLES, 0, 3);
+	xDrawArrays(commandbuffer, 0, 3);
 	aEndRenderingCommand();
 	// 交换前后缓冲区
 	aSwapBuffers();

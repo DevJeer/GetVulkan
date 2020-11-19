@@ -177,3 +177,9 @@ void xRebindUniformBuffer(XProgram* program, int binding, XUniformBuffer* ubo);
 // 重新绑定texture
 void xRebindSampler(XProgram* program, int binding, VkImageView iv, VkSampler s,
 	VkImageLayout layout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+// 设置当前的shader程序
+void xUseProgram(XProgram* program);
+// 绑定veretxbuffer
+void xBindVertexBuffer(XBufferObject* vbo);
+// 绘制
+void xDrawArrays(VkCommandBuffer commandbuffer, int offset, int count);
