@@ -174,3 +174,6 @@ unsigned char* LoadImageFromFile(const char* path, int& width, int& height, int&
 XTexture* xGetDefaultTexture();
 // 重新绑定uniform buffer
 void xRebindUniformBuffer(XProgram* program, int binding, XUniformBuffer* ubo);
+// 重新绑定texture
+void xRebindSampler(XProgram* program, int binding, VkImageView iv, VkSampler s,
+	VkImageLayout layout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);

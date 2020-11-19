@@ -5,6 +5,7 @@
 XProgram* program = nullptr;
 XBufferObject *vbo = nullptr;
 XUniformBuffer* ubo = nullptr;
+XTexture* texture = nullptr;
 
 void Init() {
 	xInitDefaultTexture();
@@ -52,6 +53,17 @@ void Init() {
 		VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_COHERENT_BIT |
 		VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT);
 	xSubmitUniformBuffer(ubo);
+
+	texture = new XTexture;
+	texture->mFormat = VK_FORMAT_R8G8B8A8_UNORM;
+	int image_width, image_height, channel;
+	unsigned char* pixel = LoadImageFromFile("Res/textures/test.bmp", image_width, image_height, channel, 4);
+	xGenImage(texture, image_width, image_height, VK_FORMAT_R8G8B8A8_UNORM, VK_IMAGE_USAGE_TRANSFER_DST_BIT |
+		VK_IMAGE_USAGE_SAMPLED_BIT);
+	xSubmitImage2D(texture, image_width, image_height, pixel);
+	xGenImageView2D(texture);
+	xGenSampler(texture);
+	delete[]pixel;
 }
 
 void Draw(float deltaTime) {
@@ -69,13 +81,7 @@ void Draw(float deltaTime) {
 	if (accTime > 3.0f) {
 		if (modifiedTexture == false) {
 			modifiedTexture = true;
-			int image_width, image_height, channel;
-			// 加载图片
-			unsigned char* pixel = LoadImageFromFile("Res/textures/test.bmp", image_width, image_height, channel, 4);
-			// 更新texture
-			xSubmitImage2D(xGetDefaultTexture(), image_width, image_height, pixel);
-			// 释放pixel内存
-			delete[] pixel;
+			xRebindSampler(program, 4, texture->mImageView, texture->mSampler);
 		}
 	}
 	if (accTime > 2.0f) {
@@ -108,6 +114,10 @@ void OnQuit() {
 	// 释放ubo的资源
 	if (ubo != nullptr) {
 		delete ubo;
+	}
+	// 释放texture的资源
+	if (texture != nullptr) {
+		delete texture;
 	}
 
 	if (vbo != nullptr) {

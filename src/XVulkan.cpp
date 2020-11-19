@@ -271,6 +271,21 @@ void xLinkProgram(XProgram* program) {
 		sizeof(XMatrix4x4f) * 8, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_COHERENT_BIT | VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT);
 	xSubmitUniformBuffer(&program->mVertexShaderMatrixUniformBuffer);
 	xConfigUniformBuffer(program, 1, &program->mVertexShaderMatrixUniformBuffer, VK_SHADER_STAGE_VERTEX_BIT);
+	// 生成3 4号Uniform
+	program->mFragmentShaderVectorUniformBuffer.mType = kXUniformBufferTypeVector;
+	program->mFragmentShaderVectorUniformBuffer.mVector4s.resize(8);
+	xGenBuffer(program->mFragmentShaderVectorUniformBuffer.mBuffer,
+		program->mFragmentShaderVectorUniformBuffer.mMemory,
+		sizeof(XVector4f) * 8, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
+		VK_MEMORY_PROPERTY_HOST_COHERENT_BIT | VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT);
+	program->mFragmentShaderMatrixUniformBuffer.mType = kXUniformBufferTypeMatrix;
+	program->mFragmentShaderMatrixUniformBuffer.mMatrices.resize(8);
+	xGenBuffer(program->mFragmentShaderMatrixUniformBuffer.mBuffer,
+		program->mFragmentShaderMatrixUniformBuffer.mMemory,
+		sizeof(XMatrix4x4f) * 8, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
+		VK_MEMORY_PROPERTY_HOST_COHERENT_BIT | VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT);
+	xConfigUniformBuffer(program, 2, &program->mFragmentShaderVectorUniformBuffer, VK_SHADER_STAGE_FRAGMENT_BIT);
+	xConfigUniformBuffer(program, 3, &program->mFragmentShaderMatrixUniformBuffer, VK_SHADER_STAGE_FRAGMENT_BIT);
 
 	// 纹理 texture 这里纹理不需要初始化是因为在初始的时候已经初始化过了
 	xConfigSampler2D(program, 4, sDefaultTexture->mImageView, sDefaultTexture->mSampler);
@@ -638,6 +653,18 @@ void xRebindUniformBuffer(XProgram* program, int binding, XUniformBuffer* ubo) {
 	}
 	delete program->mWriteDescriptorSet[binding].pBufferInfo;
 	program->mWriteDescriptorSet[binding].pBufferInfo = bufferinfo;
+	vkUpdateDescriptorSets(GetVulkanDevice(), uint32_t(program->mWriteDescriptorSet.size()),
+		program->mWriteDescriptorSet.data(), 0, nullptr);
+}
+
+void xRebindSampler(XProgram* program, int binding, VkImageView iv, VkSampler s,
+	VkImageLayout layout) {
+	VkDescriptorImageInfo* bufferinfo = new VkDescriptorImageInfo;
+	bufferinfo->imageView = iv;
+	bufferinfo->imageLayout = layout;
+	bufferinfo->sampler = s;
+	delete program->mWriteDescriptorSet[binding].pImageInfo;
+	program->mWriteDescriptorSet[binding].pImageInfo = bufferinfo;
 	vkUpdateDescriptorSets(GetVulkanDevice(), uint32_t(program->mWriteDescriptorSet.size()),
 		program->mWriteDescriptorSet.data(), 0, nullptr);
 }
