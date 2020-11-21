@@ -442,11 +442,12 @@ void xLinkProgram(XProgram* program) {
 	aSetShaderStage(&program->mFixedPipeline, program->mShaderStage, 2);
 	xSetColorAttachmentCount(&program->mFixedPipeline, 1);
 	// 开启aplha混合
-	xEnableBlend(&program->mFixedPipeline, 0, VK_TRUE);
+	//xEnableBlend(&program->mFixedPipeline, 0, VK_TRUE);
 	// 设置blend的方式
-	xBlend(&program->mFixedPipeline, 0, VK_BLEND_FACTOR_SRC_ALPHA, VK_BLEND_FACTOR_SRC_ALPHA,
-		VK_BLEND_FACTOR_ONE, VK_BLEND_FACTOR_ONE);
+	/*xBlend(&program->mFixedPipeline, 0, VK_BLEND_FACTOR_SRC_ALPHA, VK_BLEND_FACTOR_SRC_ALPHA,
+		VK_BLEND_FACTOR_ONE, VK_BLEND_FACTOR_ONE);*/
 	//xPolygonMode(&program->mFixedPipeline, VK_POLYGON_MODE_LINE);
+	//xEnableDepthTest(&program->mFixedPipeline, VK_TRUE);
 	aSetRenderPass(&program->mFixedPipeline, GetGlobalRenderPass());
 	program->mFixedPipeline.mViewport = { 0.0f,0.0f,float(GetViewportWidth()),float(GetViewportHeight()) };
 	program->mFixedPipeline.mScissor = { {0,0} ,{uint32_t(GetViewportWidth()),uint32_t(GetViewportHeight())} };
@@ -988,6 +989,10 @@ void xPolygonMode(XFixedPipeline* p, VkPolygonMode mode) {
 }
 void xDisableRasterizer(XFixedPipeline* p, VkBool32 disable) {
 	p->mRasterizer.rasterizerDiscardEnable = disable;
+}
+
+void xEnableDepthTest(XFixedPipeline* p, VkBool32 enable) {
+	p->mDepthStencilState.depthTestEnable = enable;
 }
 
 void xVulkanCleanUp() {

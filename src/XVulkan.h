@@ -255,3 +255,5 @@ void xBlendOp(XFixedPipeline* p, int attachment, VkBlendOp color, VkBlendOp alph
 void xPolygonMode(XFixedPipeline* p, VkPolygonMode mode);
 // 控制光栅化的开启与关闭
 void xDisableRasterizer(XFixedPipeline* p, VkBool32 disable);
+// 是否开启深度测试
+void xEnableDepthTest(XFixedPipeline* p, VkBool32 enable);
