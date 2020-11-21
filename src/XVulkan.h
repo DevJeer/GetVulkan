@@ -251,3 +251,7 @@ void xBlend(XFixedPipeline* p, int attachment, VkBlendFactor s_c, VkBlendFactor 
 	VkBlendFactor d_c, VkBlendFactor d_a);
 // 设置blend的选项
 void xBlendOp(XFixedPipeline* p, int attachment, VkBlendOp color, VkBlendOp alpha);
+// 设置光栅化的模式
+void xPolygonMode(XFixedPipeline* p, VkPolygonMode mode);
+// 控制光栅化的开启与关闭
+void xDisableRasterizer(XFixedPipeline* p, VkBool32 disable);

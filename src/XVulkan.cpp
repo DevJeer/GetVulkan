@@ -211,7 +211,7 @@ const VkVertexInputBindingDescription& XVertexData::BindingDescription() {
 	static VkVertexInputBindingDescription binding_description = {};
 	binding_description.binding = 0;
 	binding_description.stride = sizeof(XVertexData);
-	binding_description.inputRate == VK_VERTEX_INPUT_RATE_VERTEX;
+	binding_description.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
 	return binding_description;
 }
 
@@ -446,6 +446,7 @@ void xLinkProgram(XProgram* program) {
 	// 设置blend的方式
 	xBlend(&program->mFixedPipeline, 0, VK_BLEND_FACTOR_SRC_ALPHA, VK_BLEND_FACTOR_SRC_ALPHA,
 		VK_BLEND_FACTOR_ONE, VK_BLEND_FACTOR_ONE);
+	//xPolygonMode(&program->mFixedPipeline, VK_POLYGON_MODE_LINE);
 	aSetRenderPass(&program->mFixedPipeline, GetGlobalRenderPass());
 	program->mFixedPipeline.mViewport = { 0.0f,0.0f,float(GetViewportWidth()),float(GetViewportHeight()) };
 	program->mFixedPipeline.mScissor = { {0,0} ,{uint32_t(GetViewportWidth()),uint32_t(GetViewportHeight())} };
@@ -980,6 +981,13 @@ void xBlend(XFixedPipeline* p, int attachment, VkBlendFactor s_c, VkBlendFactor 
 void xBlendOp(XFixedPipeline* p, int attachment, VkBlendOp color, VkBlendOp alpha) {
 	p->mColorBlendAttachmentStates[attachment].colorBlendOp = color;
 	p->mColorBlendAttachmentStates[attachment].alphaBlendOp = alpha;
+}
+
+void xPolygonMode(XFixedPipeline* p, VkPolygonMode mode) {
+	p->mRasterizer.polygonMode = mode;
+}
+void xDisableRasterizer(XFixedPipeline* p, VkBool32 disable) {
+	p->mRasterizer.rasterizerDiscardEnable = disable;
 }
 
 void xVulkanCleanUp() {
