@@ -6,6 +6,8 @@ static XTexture* sDefaultTexture = nullptr;
 static XProgram* sCurrentProgram = nullptr;
 // 当前的vbo
 static XBufferObject* sCurrentVBO = nullptr;
+// 当前的ibo
+static XBufferObject* sCurrentIBO = nullptr;
 XBufferObject::XBufferObject()
 {
 	mBuffer = 0;
@@ -681,6 +683,10 @@ void xBindVertexBuffer(XBufferObject* vbo) {
 	sCurrentVBO = vbo;
 }
 
+void xBindElementBuffer(XBufferObject* ibo) {
+	sCurrentIBO = ibo;
+}
+
 void xDrawArrays(VkCommandBuffer commandbuffer, int offset, int count) {
 	aSetDynamicState(&sCurrentProgram->mFixedPipeline, commandbuffer);
 	VkBuffer vertexbuffers[] = { sCurrentVBO->mBuffer };
@@ -694,6 +700,24 @@ void xDrawArrays(VkCommandBuffer commandbuffer, int offset, int count) {
 			0, nullptr);
 	}
 	vkCmdDraw(commandbuffer, count, 1, offset, 0);
+}
+
+void xDrawElements(VkCommandBuffer commandbuffer, int offset, int count) {
+	aSetDynamicState(&sCurrentProgram->mFixedPipeline, commandbuffer);
+	VkBuffer vertexbuffers[] = { sCurrentVBO->mBuffer };
+	VkDeviceSize offsets[] = { 0 };
+	vkCmdBindPipeline(commandbuffer, VK_PIPELINE_BIND_POINT_GRAPHICS,
+		sCurrentProgram->mFixedPipeline.mPipeline);
+	vkCmdBindVertexBuffers(commandbuffer, 0, 1, vertexbuffers, offsets);
+	// 添加绑定ibo的方法
+	vkCmdBindIndexBuffer(commandbuffer, sCurrentIBO->mBuffer, 0, VK_INDEX_TYPE_UINT32);
+	if (sCurrentProgram->mDescriptorSet != 0) {
+		vkCmdBindDescriptorSets(commandbuffer, VK_PIPELINE_BIND_POINT_GRAPHICS,
+			sCurrentProgram->mFixedPipeline.mPipelineLayout, 0, 1, &sCurrentProgram->mDescriptorSet,
+			0, nullptr);
+	}
+	// 通过索引绘制
+	vkCmdDrawIndexed(commandbuffer, count, 1, offset, 0, 0);
 }
 
 void xVulkanCleanUp() {

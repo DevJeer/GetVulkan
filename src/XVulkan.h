@@ -109,12 +109,19 @@ VkResult xGenBuffer(VkBuffer& buffer, VkDeviceMemory& buffermemory, VkDeviceSize
 void xBufferSubData(VkBuffer buffer, VkBufferUsageFlags usage, const void* data,
 	VkDeviceSize size);
 
-
+// 创建vbo
 #define  xGenVertexBuffer(size, buffer, buffermemory)\
 	xGenBuffer(buffer, buffermemory, size, VK_BUFFER_USAGE_TRANSFER_DST_BIT|VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT)
+// 创建ibo
+#define xGenIndexBuffer(size,buffer,buffermemory) \
+	xGenBuffer(buffer,buffermemory,size,VK_BUFFER_USAGE_TRANSFER_DST_BIT|VK_BUFFER_USAGE_INDEX_BUFFER_BIT,VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT)
 
 #define xBufferSubVertexData(buffer, data, size)\
 	xBufferSubData(buffer, VK_BUFFER_USAGE_TRANSFER_SRC_BIT|VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, data, size)
+// 更新ibo里面的数据
+#define xBufferSubIndexData(buffer,data,size) \
+	xBufferSubData(buffer, VK_BUFFER_USAGE_TRANSFER_SRC_BIT|VK_BUFFER_USAGE_INDEX_BUFFER_BIT, data, size);
+
 // 获取内存的属性
 uint32_t xGetMemoryType(uint32_t type_filters, VkMemoryPropertyFlags properties);
 // beginCommandbuffer
@@ -181,5 +188,9 @@ void xRebindSampler(XProgram* program, int binding, VkImageView iv, VkSampler s,
 void xUseProgram(XProgram* program);
 // 绑定veretxbuffer
 void xBindVertexBuffer(XBufferObject* vbo);
+// 绑定index buffer object
+void xBindElementBuffer(XBufferObject* ibo);
 // 绘制
 void xDrawArrays(VkCommandBuffer commandbuffer, int offset, int count);
+// 通过ibo进行绘制
+void xDrawElements(VkCommandBuffer commandbuffer, int offset, int count);

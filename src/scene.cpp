@@ -4,6 +4,7 @@
 
 XProgram* program = nullptr;
 XBufferObject *vbo = nullptr;
+XBufferObject* ibo = nullptr;
 XUniformBuffer* ubo = nullptr;
 XTexture* texture = nullptr;
 
@@ -23,6 +24,12 @@ void Init() {
 	vbo = new XBufferObject;
 	// 填充buffer
 	xglBufferData(vbo, sizeof(Vertex) * 3, vertexes);
+
+	// 创建ibo
+	ibo = new XBufferObject;
+	unsigned int indexes[] = { 0,1,2 };
+	xGenIndexBuffer(sizeof(unsigned int) * 3, ibo->mBuffer, ibo->mMemory);
+	xBufferSubIndexData(ibo->mBuffer, indexes, sizeof(unsigned int) * 3);
 	
 	// 创建program
 	program = new XProgram;
@@ -95,9 +102,11 @@ void Draw(float deltaTime) {
 	VkCommandBuffer commandbuffer = aBeginRendering();
 	xUseProgram(program);
 	xBindVertexBuffer(vbo);
+	xBindElementBuffer(ibo);
 	// 更新veretxbuffer 中 2号vec的颜色
 	xUniform4fv(program, 2, color);
-	xDrawArrays(commandbuffer, 0, 3);
+	//xDrawArrays(commandbuffer, 0, 3);
+	xDrawElements(commandbuffer, 0, 3);
 	aEndRenderingCommand();
 	// 交换前后缓冲区
 	aSwapBuffers();
@@ -119,9 +128,13 @@ void OnQuit() {
 	if (texture != nullptr) {
 		delete texture;
 	}
-
+	// 销毁vbo
 	if (vbo != nullptr) {
 		glDeleteBufferObject(vbo);
+	}
+	// 销毁ibo
+	if (ibo != nullptr) {
+		glDeleteBufferObject(ibo);
 	}
 	xVulkanCleanUp();
 }
