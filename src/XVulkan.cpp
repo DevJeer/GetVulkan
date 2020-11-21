@@ -182,6 +182,67 @@ void XFixedPipeline::CleanUp() {
 	}
 }
 
+void XVertexData::SetPosition(float x, float y, float z, float w /* = 1.0f */) {
+	mPosition[0] = x;
+	mPosition[1] = y;
+	mPosition[2] = z;
+	mPosition[3] = w;
+}
+void XVertexData::SetTexcoord(float x, float y, float z, float w /* = 1.0f */) {
+	mTexcoord[0] = x;
+	mTexcoord[1] = y;
+	mTexcoord[2] = z;
+	mTexcoord[3] = w;
+}
+void XVertexData::SetNormal(float x, float y, float z, float w /* = 1.0f */) {
+	mNormal[0] = x;
+	mNormal[1] = y;
+	mNormal[2] = z;
+	mNormal[3] = w;
+}
+void XVertexData::SetTangent(float x, float y, float z, float w /* = 1.0f */) {
+	mTangent[0] = x;
+	mTangent[1] = y;
+	mTangent[2] = z;
+	mTangent[3] = w;
+}
+
+const VkVertexInputBindingDescription& XVertexData::BindingDescription() {
+	static VkVertexInputBindingDescription binding_description = {};
+	binding_description.binding = 0;
+	binding_description.stride = sizeof(XVertexData);
+	binding_description.inputRate == VK_VERTEX_INPUT_RATE_VERTEX;
+	return binding_description;
+}
+
+const std::vector<VkVertexInputAttributeDescription>& XVertexData::AttributeDescriptions() {
+	static std::vector<VkVertexInputAttributeDescription> attributesDescriptions;
+	attributesDescriptions.resize(4);
+	// 指明绑定的是哪个vbo
+	attributesDescriptions[0].binding = 0;
+	// 指明绑定的location
+	attributesDescriptions[0].location = 0;
+	attributesDescriptions[0].format = VK_FORMAT_R32G32B32A32_SFLOAT;
+	attributesDescriptions[0].offset = 0;
+
+	attributesDescriptions[1].binding = 0;
+	attributesDescriptions[1].location = 1;
+	attributesDescriptions[1].format = VK_FORMAT_R32G32B32A32_SFLOAT;
+	attributesDescriptions[1].offset = sizeof(float) * 4;
+
+	attributesDescriptions[2].binding = 0;
+	attributesDescriptions[2].location = 2;
+	attributesDescriptions[2].format = VK_FORMAT_R32G32B32A32_SFLOAT;
+	attributesDescriptions[2].offset = sizeof(float) * 8;
+
+	attributesDescriptions[3].binding = 0;
+	attributesDescriptions[3].location = 3;
+	attributesDescriptions[3].format = VK_FORMAT_R32G32B32A32_SFLOAT;
+	attributesDescriptions[3].offset = sizeof(float) * 12;
+	return attributesDescriptions;
+}
+
+
 void xglBufferData(XVulkanHandle buffer, int size, void* data) {
 	// CPU端运行， 分配vbo
 	XBufferObject* vbo = (XBufferObject*)buffer;

@@ -1,5 +1,6 @@
 #define VK_USE_PLATFORM_WIN32_KHR
 #include "BVulkan.h"
+#include "XVulkan.h"
 #pragma comment(lib,"vulkan-1.lib")
 #ifdef max
 #undef max
@@ -1730,8 +1731,8 @@ void aSetColorAttachmentCount(AVulkanHandle param, int count) {
 }
 void aCreateGraphicPipeline(AVulkanHandle param) {
 	GraphicPipeline*pipeline = (GraphicPipeline*)param;
-	const auto &bindingDescription = Vertex::getBindingDescription();
-	const auto &attributeDescriptions = Vertex::getAttributeDescriptions();
+	const auto &bindingDescription = XVertexData::BindingDescription();
+	const auto &attributeDescriptions = XVertexData::AttributeDescriptions();
 	VkPipelineVertexInputStateCreateInfo vertexInputInfo = {};
 	vertexInputInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
 	vertexInputInfo.vertexBindingDescriptionCount = 1;

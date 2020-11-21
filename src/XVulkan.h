@@ -31,6 +31,22 @@ struct XMatrix4x4f {
 struct XVector4f {
 	float mData[4];
 };
+
+struct XVertexData {
+	float mPosition[4];
+	float mTexcoord[4];
+	float mNormal[4];
+	float mTangent[4];
+	void SetPosition(float x, float y, float z, float w = 1.0f);
+	void SetTexcoord(float x, float y, float z = 0.0f, float w = 0.0f);
+	void SetNormal(float x, float y, float z, float w = 0.0f);
+	void SetTangent(float x, float y, float z, float w = 0.0f);
+	// 描述vbo binding的信息
+	static const VkVertexInputBindingDescription& BindingDescription();
+	// 描述vbo内部的数据组织方式 attribute
+	static const std::vector<VkVertexInputAttributeDescription>& AttributeDescriptions();
+};
+
 enum XUniformBufferType {
 	kXUniformBufferTypeMatrix,
 	kXUniformBufferTypeVector,
