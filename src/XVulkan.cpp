@@ -106,6 +106,81 @@ XTexture::~XTexture() {
 	}
 }
 
+XFixedPipeline::XFixedPipeline() {
+	mPipelineLayout = 0;
+	mPipeline = 0;
+	mInputAssetmlyState = {};
+	mInputAssetmlyState.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
+	mInputAssetmlyState.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
+	mInputAssetmlyState.primitiveRestartEnable = VK_FALSE;
+	mViewport = {};
+	mScissor = {};
+	mViewportState = {};
+	mViewportState.sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;
+	mViewportState.viewportCount = 1;
+	mViewportState.pViewports = &mViewport;
+	mViewportState.scissorCount = 1;
+	mViewportState.pScissors = &mScissor;
+	mRasterizer = {};
+	mRasterizer.sType = VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO;
+	mRasterizer.depthClampEnable = VK_FALSE;
+	mRasterizer.rasterizerDiscardEnable = VK_FALSE;
+	mRasterizer.polygonMode = VK_POLYGON_MODE_FILL;
+	mRasterizer.lineWidth = 1.0f;
+	mRasterizer.cullMode = VK_CULL_MODE_BACK_BIT;
+	mRasterizer.frontFace = VK_FRONT_FACE_COUNTER_CLOCKWISE;
+	mRasterizer.depthBiasEnable = VK_TRUE;
+	mRasterizer.depthBiasConstantFactor = 0.0f;
+	mRasterizer.depthBiasClamp = 0.0f;
+	mRasterizer.depthBiasSlopeFactor = 0.0f;
+	mDepthStencilState = {};
+	mDepthStencilState.sType = VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO;
+	mDepthStencilState.depthTestEnable = VK_TRUE;
+	mDepthStencilState.depthWriteEnable = VK_TRUE;
+	mDepthStencilState.depthCompareOp = VK_COMPARE_OP_LESS_OR_EQUAL;
+	mDepthStencilState.depthBoundsTestEnable = VK_FALSE;
+	mDepthStencilState.minDepthBounds = 0.0f;
+	mDepthStencilState.maxDepthBounds = 1.0f;
+	mDepthStencilState.stencilTestEnable = VK_FALSE;
+	mDepthStencilState.front = {};
+	mDepthStencilState.back = {};
+	mMultisampleState = {};
+	mMultisampleState.sType = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO;
+	mMultisampleState.sampleShadingEnable = VK_TRUE;
+	mMultisampleState.rasterizationSamples = VK_SAMPLE_COUNT_1_BIT;
+	mMultisampleState.minSampleShading = 1.0f;
+	mMultisampleState.pSampleMask = nullptr;
+	mMultisampleState.alphaToCoverageEnable = VK_FALSE;
+	mMultisampleState.alphaToOneEnable = VK_FALSE;
+	mColorBlendState = {};
+	mColorBlendState.sType = VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO;
+	mColorBlendState.logicOpEnable = VK_FALSE;
+	mColorBlendState.logicOp = VK_LOGIC_OP_COPY;
+	mDescriptorSetLayout = nullptr;
+	mShaderStages = nullptr;
+	mShaderStageCount = 0;
+	mDescriptorSetLayoutCount = 0;
+	mRenderPass = 0;
+	mSampleCount = VK_SAMPLE_COUNT_1_BIT;
+	mPushConstantShaderStage = VK_SHADER_STAGE_FRAGMENT_BIT;
+	mPushConstantCount = 8;
+	mDepthConstantFactor = 0.0f;
+	mDepthClamp = 0.0f;
+	mDepthSlopeFactor = 0.0f;
+}
+XFixedPipeline::~XFixedPipeline() {
+	CleanUp();
+}
+
+void XFixedPipeline::CleanUp() {
+	if (mPipeline != 0) {
+		vkDestroyPipeline(GetVulkanDevice(), mPipeline, nullptr);
+	}
+	if (mPipelineLayout != 0) {
+		vkDestroyPipelineLayout(GetVulkanDevice(), mPipelineLayout, nullptr);
+	}
+}
+
 void xglBufferData(XVulkanHandle buffer, int size, void* data) {
 	// CPU端运行， 分配vbo
 	XBufferObject* vbo = (XBufferObject*)buffer;
@@ -304,6 +379,8 @@ void xLinkProgram(XProgram* program) {
 	aSetDescriptorSetLayout(&program->mFixedPipeline, &program->mDescriptorSetLayout);
 	aSetShaderStage(&program->mFixedPipeline, program->mShaderStage, 2);
 	aSetColorAttachmentCount(&program->mFixedPipeline, 1);
+	// 开启aplha混合
+	aEnableBlend(&program->mFixedPipeline, 0, VK_TRUE);
 	aSetRenderPass(&program->mFixedPipeline, GetGlobalRenderPass());
 	program->mFixedPipeline.mViewport = { 0.0f,0.0f,float(GetViewportWidth()),float(GetViewportHeight()) };
 	program->mFixedPipeline.mScissor = { {0,0} ,{uint32_t(GetViewportWidth()),uint32_t(GetViewportHeight())} };

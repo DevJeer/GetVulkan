@@ -47,7 +47,33 @@ struct XUniformBuffer {
 	~XUniformBuffer();
 };
 
-class GraphicPipeline;
+// 固定管线
+struct XFixedPipeline {
+	VkPipeline mPipeline;
+	VkPipelineLayout mPipelineLayout;
+	VkDescriptorSetLayout* mDescriptorSetLayout;
+	VkPipelineShaderStageCreateInfo* mShaderStages;
+	int mShaderStageCount, mDescriptorSetLayoutCount;
+	VkRenderPass mRenderPass;
+	VkSampleCountFlagBits mSampleCount;
+	VkPipelineInputAssemblyStateCreateInfo mInputAssetmlyState;
+	VkPipelineViewportStateCreateInfo mViewportState;
+	VkViewport mViewport;
+	VkRect2D mScissor;
+	VkPipelineRasterizationStateCreateInfo mRasterizer;
+	VkPipelineDepthStencilStateCreateInfo mDepthStencilState;
+	VkPipelineMultisampleStateCreateInfo mMultisampleState;
+	std::vector<VkPipelineColorBlendAttachmentState> mColorBlendAttachmentStates;
+	VkPipelineColorBlendStateCreateInfo mColorBlendState;
+	XVector4f mPushConstants[16];
+	int mPushConstantCount;
+	VkShaderStageFlags mPushConstantShaderStage;
+	float mDepthConstantFactor, mDepthClamp, mDepthSlopeFactor;
+	XFixedPipeline();
+	~XFixedPipeline();
+	// 释放申请的内存
+	void CleanUp();
+};
 
 struct XProgram {
 	VkPipelineShaderStageCreateInfo mShaderStage[2];
@@ -63,7 +89,7 @@ struct XProgram {
 	XUniformBuffer mFragmentShaderMatrixUniformBuffer;
 	XUniformBuffer mVertexShaderVectorUniformBuffer;
 	XUniformBuffer mFragmentShaderVectorUniformBuffer;
-	GraphicPipeline mFixedPipeline;
+	XFixedPipeline mFixedPipeline;
 	XProgram();
 	~XProgram();
 };
