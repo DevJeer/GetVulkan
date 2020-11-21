@@ -147,7 +147,7 @@ XFixedPipeline::XFixedPipeline() {
 	mMultisampleState = {};
 	mMultisampleState.sType = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO;
 	mMultisampleState.sampleShadingEnable = VK_TRUE;
-	mMultisampleState.rasterizationSamples = VK_SAMPLE_COUNT_1_BIT;
+	mMultisampleState.rasterizationSamples = GetGlobalFrameBufferSampleCount();
 	mMultisampleState.minSampleShading = 1.0f;
 	mMultisampleState.pSampleMask = nullptr;
 	mMultisampleState.alphaToCoverageEnable = VK_FALSE;
@@ -161,7 +161,7 @@ XFixedPipeline::XFixedPipeline() {
 	mShaderStageCount = 0;
 	mDescriptorSetLayoutCount = 0;
 	mRenderPass = 0;
-	mSampleCount = VK_SAMPLE_COUNT_1_BIT;
+	mSampleCount = GetGlobalFrameBufferSampleCount();
 	mPushConstantShaderStage = VK_SHADER_STAGE_FRAGMENT_BIT;
 	mPushConstantCount = 8;
 	mDepthConstantFactor = 0.0f;
@@ -408,8 +408,13 @@ void xLinkProgram(XProgram* program) {
 	// 矩阵的uniformbuffer
 	program->mVertexShaderMatrixUniformBuffer.mType = kXUniformBufferTypeMatrix;
 	program->mVertexShaderMatrixUniformBuffer.mMatrices.resize(8);
+	// 模型矩阵 （先旋转后移动）
+	glm::mat4 model = glm::translate(0.0f, 0.0f, -2.0f) * glm::rotate(-30.0f, 0.0f, 1.0f, 0.0f);
 	glm::mat4 projection = glm::perspective(45.0f, float(GetViewportWidth()) / float(GetViewportHeight()), 0.1f, 100.0f);
 	projection[1][1] *= -1.0f;
+	// 拷贝0号位置的模型矩阵
+	memcpy(program->mVertexShaderMatrixUniformBuffer.mMatrices[0].mData,
+		glm::value_ptr(model), sizeof(XMatrix4x4f));
 	// 2号位置为projection 投影矩阵，需要改变
 	memcpy(program->mVertexShaderMatrixUniformBuffer.mMatrices[2].mData, glm::value_ptr(projection), sizeof(XMatrix4x4f));
 	xGenBuffer(program->mVertexShaderMatrixUniformBuffer.mBuffer, program->mVertexShaderMatrixUniformBuffer.mMemory,
