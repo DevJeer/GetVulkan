@@ -8,6 +8,8 @@ static XProgram* sCurrentProgram = nullptr;
 static XBufferObject* sCurrentVBO = nullptr;
 // 当前的ibo
 static XBufferObject* sCurrentIBO = nullptr;
+// 当前绘制的commandbuffer
+static VkCommandBuffer sMainCommandBuffer;
 XBufferObject::XBufferObject()
 {
 	mBuffer = 0;
@@ -718,6 +720,40 @@ void xDrawElements(VkCommandBuffer commandbuffer, int offset, int count) {
 	}
 	// 通过索引绘制
 	vkCmdDrawIndexed(commandbuffer, count, 1, offset, 0, 0);
+}
+
+VkCommandBuffer xBeginRendering(VkCommandBuffer commandbuffer) {
+	VkCommandBuffer cmd;
+	// 判断是否有传入的commandBuffer
+	// 如果没有，就自己创建
+	if (commandbuffer != nullptr) {
+		cmd = commandbuffer;
+	}
+	else {
+		xBeginOneTimeCommandBuffer(&cmd);
+	}
+	VkFramebuffer render_target = AquireRenderTarget();
+	VkRenderPass render_pass = GetGlobalRenderPass();
+	VkClearValue clearvalues[2] = {};
+	clearvalues[0].color = { 0.1f,0.4f,0.6f,1.0f };
+	clearvalues[1].depthStencil = { 1.0f,0 };
+
+	VkRenderPassBeginInfo rpbi = {};
+	rpbi.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+	rpbi.framebuffer = render_target;
+	rpbi.renderPass = render_pass;
+	rpbi.renderArea.offset = { 0,0 };
+	rpbi.renderArea.extent = { uint32_t(GetViewportWidth()),uint32_t(GetViewportHeight()) };
+	rpbi.clearValueCount = 2;
+	rpbi.pClearValues = clearvalues;
+	vkCmdBeginRenderPass(cmd, &rpbi, VK_SUBPASS_CONTENTS_INLINE);
+	sMainCommandBuffer = cmd;
+	return cmd;
+}
+
+void xEndRendering() {
+	vkCmdEndRenderPass(sMainCommandBuffer);
+	vkEndCommandBuffer(sMainCommandBuffer);
 }
 
 void xVulkanCleanUp() {

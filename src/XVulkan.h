@@ -194,3 +194,7 @@ void xBindElementBuffer(XBufferObject* ibo);
 void xDrawArrays(VkCommandBuffer commandbuffer, int offset, int count);
 // 通过ibo进行绘制
 void xDrawElements(VkCommandBuffer commandbuffer, int offset, int count);
+// 开始绘制
+VkCommandBuffer xBeginRendering(VkCommandBuffer commandbuffer = nullptr);
+// 结束绘制
+void xEndRendering();

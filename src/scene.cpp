@@ -99,7 +99,7 @@ void Draw(float deltaTime) {
 	}
 	float color[] = { r,r,r,1.0f };
 	aClearColor(0.1f, 0.4f, 0.6f, 1.0f);
-	VkCommandBuffer commandbuffer = aBeginRendering();
+	VkCommandBuffer commandbuffer = xBeginRendering();
 	xUseProgram(program);
 	xBindVertexBuffer(vbo);
 	xBindElementBuffer(ibo);
@@ -107,9 +107,9 @@ void Draw(float deltaTime) {
 	xUniform4fv(program, 2, color);
 	//xDrawArrays(commandbuffer, 0, 3);
 	xDrawElements(commandbuffer, 0, 3);
-	aEndRenderingCommand();
-	// 交换前后缓冲区
-	aSwapBuffers();
+	xEndRendering();
+	// 交换前后缓冲区 需要指定哪一个commandBuffer
+	aSwapBuffers(commandbuffer);
 }
 
 void OnViewportChanged(int width, int height) {
