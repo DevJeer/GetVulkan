@@ -443,7 +443,10 @@ void xLinkProgram(XProgram* program) {
 	xInitDescriptorSetLayout(program);
 	xInitDescriptorPool(program);
 	xInitDescriptorSet(program);
-	aSetDescriptorSetLayout(&program->mFixedPipeline, &program->mDescriptorSetLayout);
+	// 初始化渲染管线布局
+	program->mFixedPipeline.mDescriptorSetLayout = &program->mDescriptorSetLayout;
+	program->mFixedPipeline.mDescriptorSetLayoutCount = 1;
+	xInitPipelineLayout(&program->mFixedPipeline);
 	aSetShaderStage(&program->mFixedPipeline, program->mShaderStage, 2);
 	xSetColorAttachmentCount(&program->mFixedPipeline, 1);
 	// 开启aplha混合
@@ -998,6 +1001,20 @@ void xDisableRasterizer(XFixedPipeline* p, VkBool32 disable) {
 
 void xEnableDepthTest(XFixedPipeline* p, VkBool32 enable) {
 	p->mDepthStencilState.depthTestEnable = enable;
+}
+
+void xInitPipelineLayout(XFixedPipeline* p) {
+	VkPushConstantRange pushconstancrange = {};
+	pushconstancrange.stageFlags = p->mPushConstantShaderStage;
+	pushconstancrange.offset = 0;
+	pushconstancrange.size = sizeof(XVector4f) * p->mPushConstantCount;
+	VkPipelineLayoutCreateInfo ci = {};
+	ci.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
+	ci.pSetLayouts = p->mDescriptorSetLayout;
+	ci.setLayoutCount = p->mDescriptorSetLayoutCount;
+	ci.pPushConstantRanges = &pushconstancrange;
+	ci.pushConstantRangeCount = 1;
+	vkCreatePipelineLayout(GetVulkanDevice(), &ci, nullptr, &p->mPipelineLayout);
 }
 
 void xVulkanCleanUp() {

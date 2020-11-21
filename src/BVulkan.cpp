@@ -7,7 +7,7 @@
 #undef min
 #endif
 // ÊÇ·ñ¿ªÆôMSAA
-#define MULTI_SAMPLE 1
+//#define MULTI_SAMPLE 1
 unsigned char * LoadFileContent(const char *path, int &filesize) {
 	unsigned char*fileContent = nullptr;
 	filesize = 0;
