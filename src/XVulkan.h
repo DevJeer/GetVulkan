@@ -244,3 +244,10 @@ void xEndRendering();
 void xSwapBuffers(VkCommandBuffer commandbuffer = nullptr);
 // 设置ColorAttachmentCount
 void xSetColorAttachmentCount(XFixedPipeline* pipeline, int count);
+// 控制blend的开启与关闭
+void xEnableBlend(XFixedPipeline* pipeline, int attachment, VkBool32 enable);
+// 设置blend的方式
+void xBlend(XFixedPipeline* p, int attachment, VkBlendFactor s_c, VkBlendFactor s_a,
+	VkBlendFactor d_c, VkBlendFactor d_a);
+// 设置blend的选项
+void xBlendOp(XFixedPipeline* p, int attachment, VkBlendOp color, VkBlendOp alpha);

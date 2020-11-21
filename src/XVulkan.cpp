@@ -442,7 +442,10 @@ void xLinkProgram(XProgram* program) {
 	aSetShaderStage(&program->mFixedPipeline, program->mShaderStage, 2);
 	xSetColorAttachmentCount(&program->mFixedPipeline, 1);
 	// 开启aplha混合
-	aEnableBlend(&program->mFixedPipeline, 0, VK_TRUE);
+	xEnableBlend(&program->mFixedPipeline, 0, VK_TRUE);
+	// 设置blend的方式
+	xBlend(&program->mFixedPipeline, 0, VK_BLEND_FACTOR_SRC_ALPHA, VK_BLEND_FACTOR_SRC_ALPHA,
+		VK_BLEND_FACTOR_ONE, VK_BLEND_FACTOR_ONE);
 	aSetRenderPass(&program->mFixedPipeline, GetGlobalRenderPass());
 	program->mFixedPipeline.mViewport = { 0.0f,0.0f,float(GetViewportWidth()),float(GetViewportHeight()) };
 	program->mFixedPipeline.mScissor = { {0,0} ,{uint32_t(GetViewportWidth()),uint32_t(GetViewportHeight())} };
@@ -960,6 +963,23 @@ void xSetColorAttachmentCount(XFixedPipeline* pipeline, int count) {
 		pipeline->mColorBlendAttachmentStates[i].colorBlendOp = VK_BLEND_OP_ADD;
 		pipeline->mColorBlendAttachmentStates[i].alphaBlendOp = VK_BLEND_OP_ADD;
 	}
+}
+
+void xEnableBlend(XFixedPipeline* pipeline, int attachment, VkBool32 enable) {
+	pipeline->mColorBlendAttachmentStates[attachment].blendEnable = enable;
+}
+
+void xBlend(XFixedPipeline* p, int attachment, VkBlendFactor s_c, VkBlendFactor s_a,
+	VkBlendFactor d_c, VkBlendFactor d_a) {
+	p->mColorBlendAttachmentStates[attachment].srcColorBlendFactor = s_c;
+	p->mColorBlendAttachmentStates[attachment].srcAlphaBlendFactor = s_a;
+	p->mColorBlendAttachmentStates[attachment].dstColorBlendFactor = d_c;
+	p->mColorBlendAttachmentStates[attachment].dstAlphaBlendFactor = d_a;
+}
+
+void xBlendOp(XFixedPipeline* p, int attachment, VkBlendOp color, VkBlendOp alpha) {
+	p->mColorBlendAttachmentStates[attachment].colorBlendOp = color;
+	p->mColorBlendAttachmentStates[attachment].alphaBlendOp = alpha;
 }
 
 void xVulkanCleanUp() {
