@@ -109,7 +109,7 @@ void Draw(float deltaTime) {
 	xDrawElements(commandbuffer, 0, 3);
 	xEndRendering();
 	// 交换前后缓冲区 需要指定哪一个commandBuffer
-	aSwapBuffers(commandbuffer);
+	xSwapBuffers();
 }
 
 void OnViewportChanged(int width, int height) {

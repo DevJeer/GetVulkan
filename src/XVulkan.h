@@ -198,3 +198,5 @@ void xDrawElements(VkCommandBuffer commandbuffer, int offset, int count);
 VkCommandBuffer xBeginRendering(VkCommandBuffer commandbuffer = nullptr);
 // 结束绘制
 void xEndRendering();
+// 交换前后缓冲区
+void xSwapBuffers(VkCommandBuffer commandbuffer = nullptr);

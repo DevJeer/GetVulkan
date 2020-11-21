@@ -755,6 +755,57 @@ void xEndRendering() {
 	vkCmdEndRenderPass(sMainCommandBuffer);
 	vkEndCommandBuffer(sMainCommandBuffer);
 }
+// 提交绘制指令
+static void xSubmitDrawCommand(VkCommandBuffer commandbuffer) {
+	VkSemaphore ready_to_render[] = { GetReadyToRenderSemaphore() };
+	VkSemaphore ready_to_present[] = { GetReadyToPresentSemaphore() };
+	VkSubmitInfo submitinfo = {};
+	submitinfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+	// 等待可以渲染输出的信息之后再进行渲染
+	// 这时候ready_to_render就会被置为1
+	// 当渲染完成的时候 ready_to_present就会被置为1
+	VkPipelineStageFlags waitstages[] = { VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
+	submitinfo.waitSemaphoreCount = 1;
+	submitinfo.pWaitSemaphores = ready_to_render;
+	submitinfo.pWaitDstStageMask = waitstages;
+	submitinfo.pCommandBuffers = &commandbuffer;
+	submitinfo.commandBufferCount = 1;
+	submitinfo.signalSemaphoreCount = 1;
+	submitinfo.pSignalSemaphores = ready_to_present;
+	vkQueueSubmit(GetGraphicQueue(), 1, &submitinfo, VK_NULL_HANDLE);
+}
+// 显示framebuffer
+static void PresentFrameBuffer() {
+	VkSemaphore ready_to_present[] = { GetReadyToPresentSemaphore() };
+	VkSwapchainKHR swapchain = GetSwapchain();
+	VkPresentInfoKHR presentinfo = {};
+	// 获取当前渲染的target
+	uint32_t current_render_target_index = GetCurrentRenderTargetIndex();
+	presentinfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
+	presentinfo.pWaitSemaphores = ready_to_present;
+	presentinfo.waitSemaphoreCount = 1;
+	presentinfo.pSwapchains = &swapchain;
+	presentinfo.swapchainCount = 1;
+	presentinfo.pImageIndices = &current_render_target_index;
+	// 显示队列
+	vkQueuePresentKHR(GetPresentQueue(), &presentinfo);
+	vkQueueWaitIdle(GetPresentQueue());
+}
+
+void xSwapBuffers(VkCommandBuffer commandbuffer) {
+	VkCommandBuffer cmd;
+	// 当commandbuffer为空时，使用默认的commandbuffer
+	if (commandbuffer == nullptr) {
+		cmd = sMainCommandBuffer;
+	}
+	else {
+		cmd = commandbuffer;
+	}
+	xSubmitDrawCommand(cmd);
+	PresentFrameBuffer();
+	vkFreeCommandBuffers(GetVulkanDevice(), GetCommandPool(), 1, &cmd);
+	sMainCommandBuffer = nullptr;
+}
 
 void xVulkanCleanUp() {
 	if (sDefaultTexture != nullptr) {
