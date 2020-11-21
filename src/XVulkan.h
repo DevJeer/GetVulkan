@@ -226,3 +226,5 @@ VkCommandBuffer xBeginRendering(VkCommandBuffer commandbuffer = nullptr);
 void xEndRendering();
 // 交换前后缓冲区
 void xSwapBuffers(VkCommandBuffer commandbuffer = nullptr);
+// 设置ColorAttachmentCount
+void xSetColorAttachmentCount(XFixedPipeline* pipeline, int count);
