@@ -33,6 +33,11 @@ void XBufferObject::OnSetSize() {
 	else if (mType == kXBufferObjectTypeIndexBuffer) {
 		xGenIndexBuffer(GetSize(), mBuffer, mMemory);
 	}
+	else if (mType == kXBufferObjectTypeUniformBuffer) {
+		xGenBuffer(mBuffer, mMemory, GetSize(),
+			VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
+			VK_MEMORY_PROPERTY_HOST_COHERENT_BIT | VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT);
+	}
 }
 
 void XBufferObject::SubmitData(const void* data, int size) {
@@ -41,6 +46,13 @@ void XBufferObject::SubmitData(const void* data, int size) {
 	}
 	else if (mType == kXBufferObjectTypeIndexBuffer) {
 		xBufferSubIndexData(mBuffer, data, size);
+	}
+	else if (mType == kXBufferObjectTypeUniformBuffer) {
+		// 直接进行拷贝，不需要生成GPU附近的临时缓冲区
+		void* dst;
+		vkMapMemory(GetVulkanDevice(), mMemory, 0, size, 0, &dst);
+		memcpy(dst, data, size);
+		vkUnmapMemory(GetVulkanDevice(), mMemory);
 	}
 }
 

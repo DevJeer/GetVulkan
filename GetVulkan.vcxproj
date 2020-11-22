@@ -149,6 +149,7 @@
     <ClCompile Include="src\IndexBuffer.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\scene.cpp" />
+    <ClCompile Include="src\UniformBuffer.cpp" />
     <ClCompile Include="src\VertexBuffer.cpp" />
     <ClCompile Include="src\XVulkan.cpp" />
     <ClCompile Include="third-party\stb_image_aug.c" />
@@ -157,6 +158,7 @@
     <ClInclude Include="src\BVulkan.h" />
     <ClInclude Include="src\IndexBuffer.h" />
     <ClInclude Include="src\scene.h" />
+    <ClInclude Include="src\UniformBuffer.h" />
     <ClInclude Include="src\VertexBuffer.h" />
     <ClInclude Include="src\XVulkan.h" />
     <ClInclude Include="third-party\stb_image_aug.h" />

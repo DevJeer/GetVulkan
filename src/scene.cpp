@@ -3,11 +3,12 @@
 #include "XVulkan.h"
 #include "VertexBuffer.h"
 #include "IndexBuffer.h"
+#include "UniformBuffer.h"
 
 XProgram* program = nullptr;
 VertexBuffer *vbo = nullptr;
 IndexBuffer* ibo = nullptr;
-XUniformBuffer* ubo = nullptr;
+UniformBuffer* ubo = nullptr;
 XTexture* texture = nullptr;
 
 void Init() {
@@ -53,16 +54,12 @@ void Init() {
 	// Á´½Óshader
 	xLinkProgram(program);
 
-	ubo = new XUniformBuffer;
-	ubo->mType = kXUniformBufferTypeMatrix;
-	ubo->mMatrices.resize(8);
+	ubo = new UniformBuffer(kXUniformBufferTypeMatrix);
+	ubo->SetSize(8);
 	glm::mat4 projection = glm::perspective(60.0f, float(GetViewportWidth()) / float(GetViewportHeight()), 0.1f, 100.0f);
 	projection[1][1] *= -1.0f;
-	memcpy(ubo->mMatrices[2].mData, glm::value_ptr(projection), sizeof(XMatrix4x4f));
-	xGenBuffer(ubo->mBuffer, ubo->mMemory, sizeof(XMatrix4x4f) * 8,
-		VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_COHERENT_BIT |
-		VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT);
-	xSubmitUniformBuffer(ubo);
+	ubo->SetMatrix(2, projection);
+	ubo->SubmitData();
 
 	texture = new XTexture;
 	texture->mFormat = VK_FORMAT_R8G8B8A8_UNORM;
