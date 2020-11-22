@@ -259,3 +259,5 @@ void xDisableRasterizer(XFixedPipeline* p, VkBool32 disable);
 void xEnableDepthTest(XFixedPipeline* p, VkBool32 enable);
 // 初始化管线布局 （管线布局就是描述shader中的输入）
 void xInitPipelineLayout(XFixedPipeline* p);
+// 创建Pipeline
+void xCreateFixedPipeline(XFixedPipeline* p);

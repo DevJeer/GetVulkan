@@ -459,7 +459,7 @@ void xLinkProgram(XProgram* program) {
 	aSetRenderPass(&program->mFixedPipeline, GetGlobalRenderPass());
 	program->mFixedPipeline.mViewport = { 0.0f,0.0f,float(GetViewportWidth()),float(GetViewportHeight()) };
 	program->mFixedPipeline.mScissor = { {0,0} ,{uint32_t(GetViewportWidth()),uint32_t(GetViewportHeight())} };
-	aCreateGraphicPipeline(&program->mFixedPipeline);
+	xCreateFixedPipeline(&program->mFixedPipeline);
 }
 
 void xInitDescriptorSetLayout(XProgram* program) {
@@ -1015,6 +1015,48 @@ void xInitPipelineLayout(XFixedPipeline* p) {
 	ci.pPushConstantRanges = &pushconstancrange;
 	ci.pushConstantRangeCount = 1;
 	vkCreatePipelineLayout(GetVulkanDevice(), &ci, nullptr, &p->mPipelineLayout);
+}
+
+void xCreateFixedPipeline(XFixedPipeline* p) {
+	const auto& bindingdescriptions = XVertexData::BindingDescription();
+	const auto& attributeDescriptions = XVertexData::AttributeDescriptions();
+	VkPipelineVertexInputStateCreateInfo vertexinputinfo = {};
+	vertexinputinfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
+	vertexinputinfo.vertexBindingDescriptionCount = 1;
+	vertexinputinfo.pVertexBindingDescriptions = &bindingdescriptions;
+	vertexinputinfo.vertexAttributeDescriptionCount = attributeDescriptions.size();
+	vertexinputinfo.pVertexAttributeDescriptions = attributeDescriptions.data();
+	p->mColorBlendState.attachmentCount = p->mColorBlendAttachmentStates.size();
+	p->mColorBlendState.pAttachments = p->mColorBlendAttachmentStates.data();
+	VkDynamicState dynamicStates[] = {
+		VK_DYNAMIC_STATE_VIEWPORT,
+		VK_DYNAMIC_STATE_LINE_WIDTH,
+		VK_DYNAMIC_STATE_SCISSOR,
+		VK_DYNAMIC_STATE_DEPTH_BIAS
+	};
+	VkPipelineDynamicStateCreateInfo dynamicState = {};
+	dynamicState.sType = VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO;
+	dynamicState.dynamicStateCount = 4;
+	dynamicState.pDynamicStates = dynamicStates;
+	VkGraphicsPipelineCreateInfo pipelineinfo = {};
+	pipelineinfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
+	pipelineinfo.stageCount = p->mShaderStageCount;
+	pipelineinfo.pStages = p->mShaderStages;
+	pipelineinfo.pVertexInputState = &vertexinputinfo;
+	pipelineinfo.pInputAssemblyState = &p->mInputAssetmlyState;
+	pipelineinfo.pViewportState = &p->mViewportState;
+	pipelineinfo.pRasterizationState = &p->mRasterizer;
+	pipelineinfo.pMultisampleState = &p->mMultisampleState;
+	pipelineinfo.pDepthStencilState = &p->mDepthStencilState;
+	pipelineinfo.pColorBlendState = &p->mColorBlendState;
+	pipelineinfo.pDynamicState = &dynamicState;
+	pipelineinfo.layout = p->mPipelineLayout;
+	pipelineinfo.renderPass = p->mRenderPass;
+	pipelineinfo.subpass = 0;
+	pipelineinfo.basePipelineHandle = VK_NULL_HANDLE;
+	pipelineinfo.basePipelineIndex = -1;
+	vkCreateGraphicsPipelines(GetVulkanDevice(), VK_NULL_HANDLE, 1, &pipelineinfo, nullptr,
+		&p->mPipeline);
 }
 
 void xVulkanCleanUp() {
