@@ -261,3 +261,5 @@ void xEnableDepthTest(XFixedPipeline* p, VkBool32 enable);
 void xInitPipelineLayout(XFixedPipeline* p);
 // 创建Pipeline
 void xCreateFixedPipeline(XFixedPipeline* p);
+// 设置管线的动态状态
+void xSetDynamicState(XFixedPipeline* p, VkCommandBuffer commandbuffer);

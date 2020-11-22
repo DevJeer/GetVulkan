@@ -857,7 +857,7 @@ void xDrawArrays(VkCommandBuffer commandbuffer, int offset, int count) {
 }
 
 void xDrawElements(VkCommandBuffer commandbuffer, int offset, int count) {
-	aSetDynamicState(&sCurrentProgram->mFixedPipeline, commandbuffer);
+	xSetDynamicState(&sCurrentProgram->mFixedPipeline, commandbuffer);
 	VkBuffer vertexbuffers[] = { sCurrentVBO->mBuffer };
 	VkDeviceSize offsets[] = { 0 };
 	vkCmdBindPipeline(commandbuffer, VK_PIPELINE_BIND_POINT_GRAPHICS,
@@ -1057,6 +1057,14 @@ void xCreateFixedPipeline(XFixedPipeline* p) {
 	pipelineinfo.basePipelineIndex = -1;
 	vkCreateGraphicsPipelines(GetVulkanDevice(), VK_NULL_HANDLE, 1, &pipelineinfo, nullptr,
 		&p->mPipeline);
+}
+
+void xSetDynamicState(XFixedPipeline* p, VkCommandBuffer commandbuffer) {
+	vkCmdSetViewport(commandbuffer, 0, 1, &p->mViewport);
+	vkCmdSetScissor(commandbuffer, 0, 1, &p->mScissor);
+	vkCmdSetDepthBias(commandbuffer, p->mDepthConstantFactor, p->mDepthClamp, p->mDepthSlopeFactor);
+	vkCmdPushConstants(commandbuffer, p->mPipelineLayout, p->mPushConstantShaderStage, 0,
+		sizeof(XVector4f) * p->mPushConstantCount, p->mPushConstants);
 }
 
 void xVulkanCleanUp() {
