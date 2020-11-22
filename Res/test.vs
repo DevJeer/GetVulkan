@@ -15,7 +15,6 @@ layout(binding = 1)uniform AliceBuiltinVertexMatrix{
 	mat4 IT_Model;
 } U_DefaultVertexMatrices;
 void main(){
-	V_Color = normal;
-	V_Texcoord = texcoord;
+	V_Color = texcoord;
 	gl_Position=U_DefaultVertexMatrices.Projection * U_DefaultVertexMatrices.View * U_DefaultVertexMatrices.Model * position;
 }

@@ -8,5 +8,5 @@ layout(binding = 4) uniform sampler2D U_Texture0;
 layout(location=0)out vec4 OutColor0;
 
 void main(){
-	OutColor0=V_Color * texture(U_Texture0, V_Texcoord.xy);
+	OutColor0 = V_Color;
 }
