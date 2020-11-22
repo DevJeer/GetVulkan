@@ -1,29 +1,29 @@
 #include "BVulkan.h"
 #include "scene.h"
 #include "XVulkan.h"
+#include "VertexBuffer.h"
 
 XProgram* program = nullptr;
-XBufferObject *vbo = nullptr;
+VertexBuffer *vbo = nullptr;
 XBufferObject* ibo = nullptr;
 XUniformBuffer* ubo = nullptr;
 XTexture* texture = nullptr;
 
 void Init() {
 	xInitDefaultTexture();
-	Vertex vertexes[3];
-	vertexes[0].SetPosition(-0.5f, -0.5f, 0.0f);
-	vertexes[0].SetTexcoord(0.0f, 0.0f);
-	vertexes[0].SetNormal(1.0f, 0.0f, 1.0f, 0.1f);
-	vertexes[1].SetPosition(0.5f, -0.5f, 0.0f);
-	vertexes[1].SetTexcoord(1.0f, 0.0f);
-	vertexes[1].SetNormal(1.0f, 1.0f, 0.0f, 0.1f);
-	vertexes[2].SetPosition(0.0f, 0.5f, 0.0f);
-	vertexes[2].SetTexcoord(0.5f, 1.0f);
-	vertexes[2].SetNormal(0.0f, 1.0f, 1.0f, 1.0f);
-	// 创建buffer
-	vbo = new XBufferObject;
-	// 填充buffer
-	xglBufferData(vbo, sizeof(Vertex) * 3, vertexes);
+	vbo = new VertexBuffer;
+	vbo->SetSize(3);
+	vbo->SetPosition(0, -0.5f, -0.5f, 0.0f);
+	vbo->SetTexcoord(0, 0.0f, 0.0f);
+	vbo->SetNormal(0, 1.0f, 0.0f, 1.0f, 0.1f);
+	vbo->SetPosition(1, 0.5f, -0.5f, 0.0f);
+	vbo->SetTexcoord(1, 1.0f, 0.0f);
+	vbo->SetNormal(1, 1.0f, 1.0f, 0.0f, 0.1f);
+	vbo->SetPosition(2, 0.0f, 0.5f, 0.0f);
+	vbo->SetTexcoord(2, 0.5f, 1.0f);
+	vbo->SetNormal(2, 0.0f, 1.0f, 1.0f, 1.0f);
+	// 更新顶点数据
+	vbo->SubmitData();
 
 	// 创建ibo
 	ibo = new XBufferObject;
@@ -130,11 +130,11 @@ void OnQuit() {
 	}
 	// 销毁vbo
 	if (vbo != nullptr) {
-		glDeleteBufferObject(vbo);
+		delete vbo;
 	}
 	// 销毁ibo
 	if (ibo != nullptr) {
-		glDeleteBufferObject(ibo);
+		delete ibo;
 	}
 	xVulkanCleanUp();
 }

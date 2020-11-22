@@ -9,11 +9,25 @@
 #include "../third-party/Glm/ext.hpp"
 typedef void* XVulkanHandle;
 
+// 描述vbo的类型
+enum XBufferObjectType {
+	kXBufferObjectTypeVertexBuffer,
+	kXBufferObjectTypeIndexBuffer,
+	kXBufferObjectTypeUniformBuffer,
+	kXBufferObjectTypeCount
+};
+
 struct XBufferObject {
 	VkBuffer mBuffer;
 	VkDeviceMemory mMemory;
+	XBufferObjectType mType;
 	XBufferObject();
-	~XBufferObject();
+	virtual ~XBufferObject();
+	// 开辟空间
+	void OnSetSize();
+	// 更新数据
+	void SubmitData(const void* data, int size);
+	virtual int GetSize();
 };
 // 矩阵
 struct XMatrix4x4f {

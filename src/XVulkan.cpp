@@ -26,6 +26,22 @@ XBufferObject::~XBufferObject()
 	}
 }
 
+void XBufferObject::OnSetSize() {
+	if (mType == kXBufferObjectTypeVertexBuffer) {
+		xGenVertexBuffer(GetSize(), mBuffer, mMemory);
+	}
+}
+
+void XBufferObject::SubmitData(const void* data, int size) {
+	if (mType == kXBufferObjectTypeVertexBuffer) {
+		xBufferSubVertexData(mBuffer, data, size);
+	}
+}
+
+int XBufferObject::GetSize() {
+	return 0;
+}
+
 XUniformBuffer::XUniformBuffer() {
 	mBuffer = 0;
 	mMemory = 0;
