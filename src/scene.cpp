@@ -6,12 +6,16 @@
 #include "UniformBuffer.h"
 #include "Texture2D.h"
 #include "Material.h"
+#include "FSQ.h"
 
 VertexBuffer *vbo = nullptr;
 IndexBuffer* ibo = nullptr;
 Texture2D* texture = nullptr;
 Material* test_material = nullptr;
 XFixedPipeline* test_pipeline = nullptr;
+Material* fsq_material = nullptr;
+XFixedPipeline* fsq_pipeline = nullptr;
+FSQ* fsq = nullptr;
 
 void Init() {
 	xInitDefaultTexture();
@@ -59,6 +63,26 @@ void Init() {
 	texture = new Texture2D;
 	texture->SetImage("Res/textures/test.bmp");
 	test_material->SetTexture(0, texture);
+
+
+	// 全屏四边形的绘制
+	fsq_material = new Material;
+	fsq_material->Init("Res/fsq.vsb", "Res/fsq.fsb");
+	fsq_material->SubmitUniformBuffers();
+
+	fsq_pipeline = new XFixedPipeline;
+	xSetColorAttachmentCount(fsq_pipeline, 1);
+	fsq_pipeline->mRenderPass = GetGlobalRenderPass();
+	fsq_pipeline->mViewport = { 0.0f,0.0f,float(GetViewportWidth()),float(GetViewportHeight()),0.0f,1.0f };
+	fsq_pipeline->mScissor = { {0,0},{uint32_t(GetViewportWidth()),uint32_t(GetViewportHeight())} };
+	fsq_pipeline->mInputAssetmlyState.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP;
+	fsq_material->SetFixedPipeline(fsq_pipeline);
+	fsq_material->Finish();
+
+	fsq_material->SetTexture(0, texture);
+	fsq = new FSQ;
+	fsq->Init();
+	fsq->mMaterial = fsq_material;
 }
 
 void Draw(float deltaTime) {
@@ -77,6 +101,7 @@ void Draw(float deltaTime) {
 			0, nullptr);
 	}
 	vkCmdDrawIndexed(commandbuffer, 3, 1, 0, 0, 0);
+	fsq->Draw(commandbuffer);
 	xEndRendering();
 	// 交换前后缓冲区 需要指定哪一个commandBuffer
 	xSwapBuffers();
@@ -90,6 +115,9 @@ void OnQuit() {
 	if (test_pipeline != nullptr) {
 		delete test_pipeline;
 	}
+	if (fsq_pipeline != nullptr) {
+		delete fsq_pipeline;
+	}
 	// 释放texture的资源
 	if (texture != nullptr) {
 		delete texture;
@@ -101,6 +129,10 @@ void OnQuit() {
 	// 销毁ibo
 	if (ibo != nullptr) {
 		delete ibo;
+	}
+	// 销毁fsq
+	if (fsq != nullptr) {
+		delete fsq;
 	}
 	Material::CleanUp();
 	xVulkanCleanUp();

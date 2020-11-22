@@ -45,6 +45,9 @@
     <ClCompile Include="src\Material.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="src\FSQ.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\BVulkan.h">
@@ -72,6 +75,9 @@
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="src\Material.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="src\FSQ.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>
