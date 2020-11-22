@@ -153,7 +153,7 @@ struct XTexture {
 	VkBool32 mbEnableAnisotropy;
 	float mMaxAnisotropy;
 	XTexture(VkImageAspectFlags image_aspect = VK_IMAGE_ASPECT_COLOR_BIT);
-	~XTexture();
+	virtual ~XTexture();
 };
 
 // Ìî³ävbo bufferdata

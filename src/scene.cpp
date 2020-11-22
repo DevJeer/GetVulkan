@@ -4,12 +4,13 @@
 #include "VertexBuffer.h"
 #include "IndexBuffer.h"
 #include "UniformBuffer.h"
+#include "Texture2D.h"
 
 XProgram* program = nullptr;
 VertexBuffer *vbo = nullptr;
 IndexBuffer* ibo = nullptr;
 UniformBuffer* ubo = nullptr;
-XTexture* texture = nullptr;
+Texture2D* texture = nullptr;
 
 void Init() {
 	xInitDefaultTexture();
@@ -61,16 +62,8 @@ void Init() {
 	ubo->SetMatrix(2, projection);
 	ubo->SubmitData();
 
-	texture = new XTexture;
-	texture->mFormat = VK_FORMAT_R8G8B8A8_UNORM;
-	int image_width, image_height, channel;
-	unsigned char* pixel = LoadImageFromFile("Res/textures/test.bmp", image_width, image_height, channel, 4);
-	xGenImage(texture, image_width, image_height, VK_FORMAT_R8G8B8A8_UNORM, VK_IMAGE_USAGE_TRANSFER_DST_BIT |
-		VK_IMAGE_USAGE_SAMPLED_BIT);
-	xSubmitImage2D(texture, image_width, image_height, pixel);
-	xGenImageView2D(texture);
-	xGenSampler(texture);
-	delete[]pixel;
+	texture = new Texture2D;
+	texture->SetImage("Res/textures/test.bmp");
 }
 
 void Draw(float deltaTime) {
