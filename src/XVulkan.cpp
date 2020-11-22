@@ -446,6 +446,7 @@ void xLinkProgram(XProgram* program) {
 	// 初始化渲染管线布局
 	program->mFixedPipeline.mDescriptorSetLayout = &program->mDescriptorSetLayout;
 	program->mFixedPipeline.mDescriptorSetLayoutCount = 1;
+	program->mFixedPipeline.mPushConstants[0].mData[1] = 1.0f;
 	xInitPipelineLayout(&program->mFixedPipeline);
 	aSetShaderStage(&program->mFixedPipeline, program->mShaderStage, 2);
 	xSetColorAttachmentCount(&program->mFixedPipeline, 1);
