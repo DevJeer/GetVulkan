@@ -207,7 +207,7 @@ void xInitDescriptorSet(XProgram* program);
 // 将uniformBuffer写入到gpu中
 void xSubmitUniformBuffer(XUniformBuffer* uniformbuffer);
 // 将uniform cpu->gpu中的路径打通 （补全一些信息） 
-void xConfigUniformBuffer(XVulkanHandle param, int bingding, XUniformBuffer* ubo, VkShaderStageFlags shader_stage);
+void xConfigUniformBuffer(XVulkanHandle param, int bingding, XBufferObject* ubo, VkShaderStageFlags shader_stage);
 // 生成image
 void xGenImage(XTexture* texture, uint32_t w, uint32_t h, VkFormat f,
 	VkImageUsageFlags usage, VkSampleCountFlagBits sample_count = VK_SAMPLE_COUNT_1_BIT, int mipmap = 1);

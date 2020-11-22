@@ -419,82 +419,82 @@ void xAttachFragmentShader(XProgram* program, VkShaderModule shader) {
 }
 
 void xLinkProgram(XProgram* program) {
-	// 设置uniform的值
-	program->mVertexShaderVectorUniformBuffer.mType = kXUniformBufferTypeVector;
-	program->mVertexShaderVectorUniformBuffer.mVector4s.resize(8);
-	program->mVertexShaderVectorUniformBuffer.mVector4s[0].mData[0] = 1.0f;
-	program->mVertexShaderVectorUniformBuffer.mVector4s[0].mData[1] = 0.0f;
-	program->mVertexShaderVectorUniformBuffer.mVector4s[0].mData[2] = 0.0f;
-	program->mVertexShaderVectorUniformBuffer.mVector4s[0].mData[3] = 1.0f;
-	program->mVertexShaderVectorUniformBuffer.mVector4s[1].mData[0] = 0.0f;
-	program->mVertexShaderVectorUniformBuffer.mVector4s[1].mData[1] = 0.0f;
-	program->mVertexShaderVectorUniformBuffer.mVector4s[1].mData[2] = 1.0f;
-	program->mVertexShaderVectorUniformBuffer.mVector4s[1].mData[3] = 1.0f;
-	program->mVertexShaderVectorUniformBuffer.mVector4s[2].mData[0] = 0.0f;
-	program->mVertexShaderVectorUniformBuffer.mVector4s[2].mData[1] = 1.0f;
-	program->mVertexShaderVectorUniformBuffer.mVector4s[2].mData[2] = 0.0f;
-	program->mVertexShaderVectorUniformBuffer.mVector4s[2].mData[3] = 1.0f;
-	// 生成对应的buffer
-	xGenBuffer(program->mVertexShaderVectorUniformBuffer.mBuffer, program->mVertexShaderVectorUniformBuffer.mMemory,
-		sizeof(XVector4f) * 8, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_COHERENT_BIT | VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT);
-	xSubmitUniformBuffer(&program->mVertexShaderVectorUniformBuffer);
-	xConfigUniformBuffer(program, 0, &program->mVertexShaderVectorUniformBuffer, VK_SHADER_STAGE_VERTEX_BIT);
-	// 矩阵的uniformbuffer
-	program->mVertexShaderMatrixUniformBuffer.mType = kXUniformBufferTypeMatrix;
-	program->mVertexShaderMatrixUniformBuffer.mMatrices.resize(8);
-	// 模型矩阵 （先旋转后移动）
-	glm::mat4 model = glm::translate(0.0f, 0.0f, -2.0f) * glm::rotate(-30.0f, 0.0f, 1.0f, 0.0f);
-	glm::mat4 projection = glm::perspective(45.0f, float(GetViewportWidth()) / float(GetViewportHeight()), 0.1f, 100.0f);
-	projection[1][1] *= -1.0f;
-	// 拷贝0号位置的模型矩阵
-	memcpy(program->mVertexShaderMatrixUniformBuffer.mMatrices[0].mData,
-		glm::value_ptr(model), sizeof(XMatrix4x4f));
-	// 2号位置为projection 投影矩阵，需要改变
-	memcpy(program->mVertexShaderMatrixUniformBuffer.mMatrices[2].mData, glm::value_ptr(projection), sizeof(XMatrix4x4f));
-	xGenBuffer(program->mVertexShaderMatrixUniformBuffer.mBuffer, program->mVertexShaderMatrixUniformBuffer.mMemory,
-		sizeof(XMatrix4x4f) * 8, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_COHERENT_BIT | VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT);
-	xSubmitUniformBuffer(&program->mVertexShaderMatrixUniformBuffer);
-	xConfigUniformBuffer(program, 1, &program->mVertexShaderMatrixUniformBuffer, VK_SHADER_STAGE_VERTEX_BIT);
-	// 生成3 4号Uniform
-	program->mFragmentShaderVectorUniformBuffer.mType = kXUniformBufferTypeVector;
-	program->mFragmentShaderVectorUniformBuffer.mVector4s.resize(8);
-	xGenBuffer(program->mFragmentShaderVectorUniformBuffer.mBuffer,
-		program->mFragmentShaderVectorUniformBuffer.mMemory,
-		sizeof(XVector4f) * 8, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
-		VK_MEMORY_PROPERTY_HOST_COHERENT_BIT | VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT);
-	program->mFragmentShaderMatrixUniformBuffer.mType = kXUniformBufferTypeMatrix;
-	program->mFragmentShaderMatrixUniformBuffer.mMatrices.resize(8);
-	xGenBuffer(program->mFragmentShaderMatrixUniformBuffer.mBuffer,
-		program->mFragmentShaderMatrixUniformBuffer.mMemory,
-		sizeof(XMatrix4x4f) * 8, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
-		VK_MEMORY_PROPERTY_HOST_COHERENT_BIT | VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT);
-	xConfigUniformBuffer(program, 2, &program->mFragmentShaderVectorUniformBuffer, VK_SHADER_STAGE_FRAGMENT_BIT);
-	xConfigUniformBuffer(program, 3, &program->mFragmentShaderMatrixUniformBuffer, VK_SHADER_STAGE_FRAGMENT_BIT);
+	//// 设置uniform的值
+	//program->mVertexShaderVectorUniformBuffer.mType = kXUniformBufferTypeVector;
+	//program->mVertexShaderVectorUniformBuffer.mVector4s.resize(8);
+	//program->mVertexShaderVectorUniformBuffer.mVector4s[0].mData[0] = 1.0f;
+	//program->mVertexShaderVectorUniformBuffer.mVector4s[0].mData[1] = 0.0f;
+	//program->mVertexShaderVectorUniformBuffer.mVector4s[0].mData[2] = 0.0f;
+	//program->mVertexShaderVectorUniformBuffer.mVector4s[0].mData[3] = 1.0f;
+	//program->mVertexShaderVectorUniformBuffer.mVector4s[1].mData[0] = 0.0f;
+	//program->mVertexShaderVectorUniformBuffer.mVector4s[1].mData[1] = 0.0f;
+	//program->mVertexShaderVectorUniformBuffer.mVector4s[1].mData[2] = 1.0f;
+	//program->mVertexShaderVectorUniformBuffer.mVector4s[1].mData[3] = 1.0f;
+	//program->mVertexShaderVectorUniformBuffer.mVector4s[2].mData[0] = 0.0f;
+	//program->mVertexShaderVectorUniformBuffer.mVector4s[2].mData[1] = 1.0f;
+	//program->mVertexShaderVectorUniformBuffer.mVector4s[2].mData[2] = 0.0f;
+	//program->mVertexShaderVectorUniformBuffer.mVector4s[2].mData[3] = 1.0f;
+	//// 生成对应的buffer
+	//xGenBuffer(program->mVertexShaderVectorUniformBuffer.mBuffer, program->mVertexShaderVectorUniformBuffer.mMemory,
+	//	sizeof(XVector4f) * 8, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_COHERENT_BIT | VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT);
+	//xSubmitUniformBuffer(&program->mVertexShaderVectorUniformBuffer);
+	//xConfigUniformBuffer(program, 0, &program->mVertexShaderVectorUniformBuffer, VK_SHADER_STAGE_VERTEX_BIT);
+	//// 矩阵的uniformbuffer
+	//program->mVertexShaderMatrixUniformBuffer.mType = kXUniformBufferTypeMatrix;
+	//program->mVertexShaderMatrixUniformBuffer.mMatrices.resize(8);
+	//// 模型矩阵 （先旋转后移动）
+	//glm::mat4 model = glm::translate(0.0f, 0.0f, -2.0f) * glm::rotate(-30.0f, 0.0f, 1.0f, 0.0f);
+	//glm::mat4 projection = glm::perspective(45.0f, float(GetViewportWidth()) / float(GetViewportHeight()), 0.1f, 100.0f);
+	//projection[1][1] *= -1.0f;
+	//// 拷贝0号位置的模型矩阵
+	//memcpy(program->mVertexShaderMatrixUniformBuffer.mMatrices[0].mData,
+	//	glm::value_ptr(model), sizeof(XMatrix4x4f));
+	//// 2号位置为projection 投影矩阵，需要改变
+	//memcpy(program->mVertexShaderMatrixUniformBuffer.mMatrices[2].mData, glm::value_ptr(projection), sizeof(XMatrix4x4f));
+	//xGenBuffer(program->mVertexShaderMatrixUniformBuffer.mBuffer, program->mVertexShaderMatrixUniformBuffer.mMemory,
+	//	sizeof(XMatrix4x4f) * 8, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_COHERENT_BIT | VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT);
+	//xSubmitUniformBuffer(&program->mVertexShaderMatrixUniformBuffer);
+	//xConfigUniformBuffer(program, 1, &program->mVertexShaderMatrixUniformBuffer, VK_SHADER_STAGE_VERTEX_BIT);
+	//// 生成3 4号Uniform
+	//program->mFragmentShaderVectorUniformBuffer.mType = kXUniformBufferTypeVector;
+	//program->mFragmentShaderVectorUniformBuffer.mVector4s.resize(8);
+	//xGenBuffer(program->mFragmentShaderVectorUniformBuffer.mBuffer,
+	//	program->mFragmentShaderVectorUniformBuffer.mMemory,
+	//	sizeof(XVector4f) * 8, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
+	//	VK_MEMORY_PROPERTY_HOST_COHERENT_BIT | VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT);
+	//program->mFragmentShaderMatrixUniformBuffer.mType = kXUniformBufferTypeMatrix;
+	//program->mFragmentShaderMatrixUniformBuffer.mMatrices.resize(8);
+	//xGenBuffer(program->mFragmentShaderMatrixUniformBuffer.mBuffer,
+	//	program->mFragmentShaderMatrixUniformBuffer.mMemory,
+	//	sizeof(XMatrix4x4f) * 8, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
+	//	VK_MEMORY_PROPERTY_HOST_COHERENT_BIT | VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT);
+	//xConfigUniformBuffer(program, 2, &program->mFragmentShaderVectorUniformBuffer, VK_SHADER_STAGE_FRAGMENT_BIT);
+	//xConfigUniformBuffer(program, 3, &program->mFragmentShaderMatrixUniformBuffer, VK_SHADER_STAGE_FRAGMENT_BIT);
 
-	// 纹理 texture 这里纹理不需要初始化是因为在初始的时候已经初始化过了
-	xConfigSampler2D(program, 4, sDefaultTexture->mImageView, sDefaultTexture->mSampler);
+	//// 纹理 texture 这里纹理不需要初始化是因为在初始的时候已经初始化过了
+	//xConfigSampler2D(program, 4, sDefaultTexture->mImageView, sDefaultTexture->mSampler);
 
-	xInitDescriptorSetLayout(program);
-	xInitDescriptorPool(program);
-	xInitDescriptorSet(program);
-	// 初始化渲染管线布局
-	program->mFixedPipeline.mDescriptorSetLayout = &program->mDescriptorSetLayout;
-	program->mFixedPipeline.mDescriptorSetLayoutCount = 1;
-	program->mFixedPipeline.mPushConstants[0].mData[1] = 1.0f;
-	xInitPipelineLayout(&program->mFixedPipeline);
-	aSetShaderStage(&program->mFixedPipeline, program->mShaderStage, 2);
-	xSetColorAttachmentCount(&program->mFixedPipeline, 1);
-	// 开启aplha混合
-	//xEnableBlend(&program->mFixedPipeline, 0, VK_TRUE);
-	// 设置blend的方式
-	/*xBlend(&program->mFixedPipeline, 0, VK_BLEND_FACTOR_SRC_ALPHA, VK_BLEND_FACTOR_SRC_ALPHA,
-		VK_BLEND_FACTOR_ONE, VK_BLEND_FACTOR_ONE);*/
-	//xPolygonMode(&program->mFixedPipeline, VK_POLYGON_MODE_LINE);
-	//xEnableDepthTest(&program->mFixedPipeline, VK_TRUE);
-	aSetRenderPass(&program->mFixedPipeline, GetGlobalRenderPass());
-	program->mFixedPipeline.mViewport = { 0.0f,0.0f,float(GetViewportWidth()),float(GetViewportHeight()) };
-	program->mFixedPipeline.mScissor = { {0,0} ,{uint32_t(GetViewportWidth()),uint32_t(GetViewportHeight())} };
-	xCreateFixedPipeline(&program->mFixedPipeline);
+	//xInitDescriptorSetLayout(program);
+	//xInitDescriptorPool(program);
+	//xInitDescriptorSet(program);
+	//// 初始化渲染管线布局
+	//program->mFixedPipeline.mDescriptorSetLayout = &program->mDescriptorSetLayout;
+	//program->mFixedPipeline.mDescriptorSetLayoutCount = 1;
+	//program->mFixedPipeline.mPushConstants[0].mData[1] = 1.0f;
+	//xInitPipelineLayout(&program->mFixedPipeline);
+	//aSetShaderStage(&program->mFixedPipeline, program->mShaderStage, 2);
+	//xSetColorAttachmentCount(&program->mFixedPipeline, 1);
+	//// 开启aplha混合
+	////xEnableBlend(&program->mFixedPipeline, 0, VK_TRUE);
+	//// 设置blend的方式
+	///*xBlend(&program->mFixedPipeline, 0, VK_BLEND_FACTOR_SRC_ALPHA, VK_BLEND_FACTOR_SRC_ALPHA,
+	//	VK_BLEND_FACTOR_ONE, VK_BLEND_FACTOR_ONE);*/
+	////xPolygonMode(&program->mFixedPipeline, VK_POLYGON_MODE_LINE);
+	////xEnableDepthTest(&program->mFixedPipeline, VK_TRUE);
+	//aSetRenderPass(&program->mFixedPipeline, GetGlobalRenderPass());
+	//program->mFixedPipeline.mViewport = { 0.0f,0.0f,float(GetViewportWidth()),float(GetViewportHeight()) };
+	//program->mFixedPipeline.mScissor = { {0,0} ,{uint32_t(GetViewportWidth()),uint32_t(GetViewportHeight())} };
+	//xCreateFixedPipeline(&program->mFixedPipeline);
 }
 
 void xInitDescriptorSetLayout(XProgram* program) {
@@ -548,7 +548,7 @@ void xSubmitUniformBuffer(XUniformBuffer* uniformbuffer) {
 	vkUnmapMemory(GetVulkanDevice(), uniformbuffer->mMemory);
 }
 
-void xConfigUniformBuffer(XVulkanHandle param, int bingding, XUniformBuffer* ubo, VkShaderStageFlags shader_stage) {
+void xConfigUniformBuffer(XVulkanHandle param, int bingding, XBufferObject* ubo, VkShaderStageFlags shader_stage) {
 	XProgram* program = (XProgram*)param;
 	// 描述gpu中的uniform绑定点的布局
 	VkDescriptorSetLayoutBinding dslb = {};
@@ -566,12 +566,7 @@ void xConfigUniformBuffer(XVulkanHandle param, int bingding, XUniformBuffer* ubo
 	VkDescriptorBufferInfo* bufferinfo = new VkDescriptorBufferInfo;
 	bufferinfo->offset = 0;
 	bufferinfo->buffer = ubo->mBuffer;
-	if (ubo->mType == kXUniformBufferTypeMatrix) {
-		bufferinfo->range = sizeof(XMatrix4x4f) * ubo->mMatrices.size();
-	}
-	else {
-		bufferinfo->range = sizeof(XVector4f) * ubo->mVector4s.size();
-	}
+	bufferinfo->range = ubo->GetSize();
 	// cpu中uniform的来源
 	VkWriteDescriptorSet descriptorwriter = {};
 	descriptorwriter.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;

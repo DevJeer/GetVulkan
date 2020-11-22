@@ -5,12 +5,13 @@
 #include "IndexBuffer.h"
 #include "UniformBuffer.h"
 #include "Texture2D.h"
+#include "Material.h"
 
-XProgram* program = nullptr;
 VertexBuffer *vbo = nullptr;
 IndexBuffer* ibo = nullptr;
-UniformBuffer* ubo = nullptr;
 Texture2D* texture = nullptr;
+Material* test_material = nullptr;
+XFixedPipeline* test_pipeline = nullptr;
 
 void Init() {
 	xInitDefaultTexture();
@@ -35,71 +36,47 @@ void Init() {
 	ibo->AppendIndex(1);
 	ibo->AppendIndex(2);
 	ibo->SubmitData();
-	
-	// 创建program
-	program = new XProgram;
-	GLuint vs, fs;
-	int file_len = 0;
-	unsigned char* file_content = LoadFileContent("Res/test.vsb", file_len);
-	// 创建shader
-	xCreateShader(vs, file_content, file_len);
-	delete[] file_content;
 
-	file_content = LoadFileContent("Res/test.fsb", file_len);
-	// 创建fs shader
-	xCreateShader(fs, file_content, file_len);
-	delete[] file_content;
-	// 绑定shader
-	xAttachVertexShader(program, vs);
-	xAttachFragmentShader(program, fs);
-	// 链接shader
-	xLinkProgram(program);
-
-	ubo = new UniformBuffer(kXUniformBufferTypeMatrix);
-	ubo->SetSize(8);
-	glm::mat4 projection = glm::perspective(60.0f, float(GetViewportWidth()) / float(GetViewportHeight()), 0.1f, 100.0f);
+	test_material = new Material;
+	test_material->Init("Res/test.vsb", "Res/test.fsb");
+	glm::mat4 model = glm::translate(0.0f, 0.0f, -2.0f) * glm::rotate(-30.0f, 0.0f, 1.0f, 0.0f);
+	glm::mat4 projection = glm::perspective(45.0f, float(GetViewportWidth()) / float(GetViewportHeight()),
+		0.1f, 100.0f);
 	projection[1][1] *= -1.0f;
-	ubo->SetMatrix(2, projection);
-	ubo->SubmitData();
+	glm::mat4 view;
+	test_material->SetMVP(model, view, projection);
+	test_material->SubmitUniformBuffers();
+
+	test_pipeline = new XFixedPipeline;
+	xSetColorAttachmentCount(test_pipeline, 1);
+	test_pipeline->mRenderPass = GetGlobalRenderPass();
+	test_material->SetFixedPipeline(test_pipeline);
+	test_pipeline->mViewport = { 0.0f,0.0f,float(GetViewportWidth()),float(GetViewportHeight()),0.0f,1.0f };
+	test_pipeline->mScissor = { {0,0},{uint32_t(GetViewportWidth()),uint32_t(GetViewportHeight())} };
+	test_material->Finish();
+
 
 	texture = new Texture2D;
 	texture->SetImage("Res/textures/test.bmp");
+	test_material->SetTexture(0, texture);
 }
 
 void Draw(float deltaTime) {
-	static float r = 0.0f;
-	static float accTime = 0.0f;
-	// 是否需要改变texture
-	static bool modifiedTexture = false;
-	// 是否需要更新UBO
-	static bool modifiedUBO = false;
-	r += deltaTime;
-	accTime += deltaTime;
-	if (r >= 1.0f) {
-		r = 0.0f;
-	}
-	if (accTime > 3.0f) {
-		if (modifiedTexture == false) {
-			modifiedTexture = true;
-			xRebindSampler(program, 4, texture->mImageView, texture->mSampler);
-		}
-	}
-	if (accTime > 2.0f) {
-		if (modifiedUBO == false) {
-			modifiedUBO = true;
-			//xRebindUniformBuffer(program, 1, ubo);
-		}
-	}
-	float color[] = { r,r,r,1.0f };
 	aClearColor(0.1f, 0.4f, 0.6f, 1.0f);
 	VkCommandBuffer commandbuffer = xBeginRendering();
-	xUseProgram(program);
-	xBindVertexBuffer(vbo);
-	xBindElementBuffer(ibo);
-	// 更新veretxbuffer 中 2号vec的颜色
-	xUniform4fv(program, 2, color);
-	//xDrawArrays(commandbuffer, 0, 3);
-	xDrawElements(commandbuffer, 0, 3);
+	xSetDynamicState(test_material->mFixedPipeline, commandbuffer);
+	VkBuffer vertexbuffers[] = { vbo->mBuffer };
+	VkDeviceSize offsets[] = { 0 };
+	vkCmdBindPipeline(commandbuffer, VK_PIPELINE_BIND_POINT_GRAPHICS,
+		test_material->mFixedPipeline->mPipeline);
+	vkCmdBindVertexBuffers(commandbuffer, 0, 1, vertexbuffers, offsets);
+	vkCmdBindIndexBuffer(commandbuffer, ibo->mBuffer, 0, VK_INDEX_TYPE_UINT32);
+	if (test_material->mProgram.mDescriptorSet != 0) {
+		vkCmdBindDescriptorSets(commandbuffer, VK_PIPELINE_BIND_POINT_GRAPHICS,
+			test_material->mFixedPipeline->mPipelineLayout, 0, 1, &test_material->mProgram.mDescriptorSet,
+			0, nullptr);
+	}
+	vkCmdDrawIndexed(commandbuffer, 3, 1, 0, 0, 0);
 	xEndRendering();
 	// 交换前后缓冲区 需要指定哪一个commandBuffer
 	xSwapBuffers();
@@ -110,12 +87,8 @@ void OnViewportChanged(int width, int height) {
 }
 
 void OnQuit() {
-	if (program != nullptr) {
-		delete program;
-	}
-	// 释放ubo的资源
-	if (ubo != nullptr) {
-		delete ubo;
+	if (test_pipeline != nullptr) {
+		delete test_pipeline;
 	}
 	// 释放texture的资源
 	if (texture != nullptr) {
@@ -129,5 +102,6 @@ void OnQuit() {
 	if (ibo != nullptr) {
 		delete ibo;
 	}
+	Material::CleanUp();
 	xVulkanCleanUp();
 }
