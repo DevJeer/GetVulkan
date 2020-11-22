@@ -2,10 +2,11 @@
 #include "scene.h"
 #include "XVulkan.h"
 #include "VertexBuffer.h"
+#include "IndexBuffer.h"
 
 XProgram* program = nullptr;
 VertexBuffer *vbo = nullptr;
-XBufferObject* ibo = nullptr;
+IndexBuffer* ibo = nullptr;
 XUniformBuffer* ubo = nullptr;
 XTexture* texture = nullptr;
 
@@ -26,10 +27,12 @@ void Init() {
 	vbo->SubmitData();
 
 	// 创建ibo
-	ibo = new XBufferObject;
-	unsigned int indexes[] = { 0,1,2 };
-	xGenIndexBuffer(sizeof(unsigned int) * 3, ibo->mBuffer, ibo->mMemory);
-	xBufferSubIndexData(ibo->mBuffer, indexes, sizeof(unsigned int) * 3);
+	ibo = new IndexBuffer;
+	ibo->SetSize(3);
+	ibo->AppendIndex(0);
+	ibo->AppendIndex(1);
+	ibo->AppendIndex(2);
+	ibo->SubmitData();
 	
 	// 创建program
 	program = new XProgram;

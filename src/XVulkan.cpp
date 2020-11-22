@@ -30,11 +30,17 @@ void XBufferObject::OnSetSize() {
 	if (mType == kXBufferObjectTypeVertexBuffer) {
 		xGenVertexBuffer(GetSize(), mBuffer, mMemory);
 	}
+	else if (mType == kXBufferObjectTypeIndexBuffer) {
+		xGenIndexBuffer(GetSize(), mBuffer, mMemory);
+	}
 }
 
 void XBufferObject::SubmitData(const void* data, int size) {
 	if (mType == kXBufferObjectTypeVertexBuffer) {
 		xBufferSubVertexData(mBuffer, data, size);
+	}
+	else if (mType == kXBufferObjectTypeIndexBuffer) {
+		xBufferSubIndexData(mBuffer, data, size);
 	}
 }
 
