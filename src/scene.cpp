@@ -8,6 +8,7 @@
 #include "Material.h"
 #include "FSQ.h"
 #include "Ground.h"
+#include "Model.h"
 
 Texture2D* texture = nullptr;
 Material* test_material = nullptr;
@@ -16,6 +17,7 @@ Material* fsq_material = nullptr;
 XFixedPipeline* fsq_pipeline = nullptr;
 FSQ* fsq = nullptr;
 Ground* ground = nullptr;
+Model* sphere = nullptr;
 
 void Init() {
 	xInitDefaultTexture();
@@ -44,6 +46,11 @@ void Init() {
 	test_material->Finish();
 
 	ground->SetMaterial(test_material);
+
+	// 绘制球
+	sphere = new Model;
+	sphere->Init("Res/Sphere.raw");
+	sphere->SetMaterial(test_material);
 
 
 	texture = new Texture2D;
@@ -75,6 +82,7 @@ void Draw(float deltaTime) {
 	aClearColor(0.1f, 0.4f, 0.6f, 1.0f);
 	VkCommandBuffer commandbuffer = xBeginRendering();
 	ground->Draw(commandbuffer);
+	sphere->Draw(commandbuffer);
 	//fsq->Draw(commandbuffer);
 	xEndRendering();
 	// 交换前后缓冲区 需要指定哪一个commandBuffer
@@ -103,6 +111,10 @@ void OnQuit() {
 	// 销毁ground
 	if (ground != nullptr) {
 		delete ground;
+	}
+	// 销毁球
+	if (sphere != nullptr) {
+		delete sphere;
 	}
 	Material::CleanUp();
 	xVulkanCleanUp();

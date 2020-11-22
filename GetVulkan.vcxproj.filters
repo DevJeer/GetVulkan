@@ -51,6 +51,9 @@
     <ClCompile Include="src\Ground.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="src\Model.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\BVulkan.h">
@@ -84,6 +87,9 @@
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="src\Ground.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Model.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>

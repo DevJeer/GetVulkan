@@ -151,6 +151,7 @@
     <ClCompile Include="src\IndexBuffer.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\Material.cpp" />
+    <ClCompile Include="src\Model.cpp" />
     <ClCompile Include="src\scene.cpp" />
     <ClCompile Include="src\Texture2D.cpp" />
     <ClCompile Include="src\UniformBuffer.cpp" />
@@ -164,6 +165,7 @@
     <ClInclude Include="src\Ground.h" />
     <ClInclude Include="src\IndexBuffer.h" />
     <ClInclude Include="src\Material.h" />
+    <ClInclude Include="src\Model.h" />
     <ClInclude Include="src\scene.h" />
     <ClInclude Include="src\Texture2D.h" />
     <ClInclude Include="src\UniformBuffer.h" />
