@@ -11,6 +11,7 @@
 #include "Model.h"
 
 Texture2D* texture = nullptr;
+TextureCube* skybox = nullptr;
 Material* test_material = nullptr;
 XFixedPipeline* test_pipeline = nullptr;
 Material* ground_material = nullptr;
@@ -73,10 +74,12 @@ void Init() {
 	ground->SetMaterial(ground_material);
 
 
-
 	texture = new Texture2D;
 	texture->SetImage("Res/textures/test.bmp");
 	test_material->SetTexture(0, texture);
+
+	skybox = new TextureCube;
+	skybox->Init("");
 
 
 	// 全屏四边形的绘制
@@ -139,6 +142,10 @@ void OnQuit() {
 	// 销毁球
 	if (sphere != nullptr) {
 		delete sphere;
+	}
+	// 销毁天空盒
+	if (skybox != nullptr) {
+		delete skybox;
 	}
 	Material::CleanUp();
 	xVulkanCleanUp();
