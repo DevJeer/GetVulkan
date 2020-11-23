@@ -605,27 +605,23 @@ void xGenImage(XTexture* texture, uint32_t w, uint32_t h, VkFormat f,
 	vkBindImageMemory(GetVulkanDevice(), texture->mImage, texture->mMemory, 0);
 }
 
-void xSubmitImage2D(XTexture* texture, int width, int height, const void* pixel) {
-	// 计算图片的大小
+void xSubmitImage2D(XTexture*texture, int width, int height, const void *pixel) {
 	VkDeviceSize image_size = width * height;
-	if (texture->mFormat == VK_FORMAT_R8G8B8A8_UNORM) {
+	if (texture->mFormat==VK_FORMAT_R8G8B8A8_UNORM){
 		image_size *= 4;
 	}
-	// 创建临时内存，用来拷贝cpu中的数据
 	VkBuffer tempbuffer;
 	VkDeviceMemory tempmemory;
 	xGenBuffer(tempbuffer, tempmemory, image_size, VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
 		VK_MEMORY_PROPERTY_HOST_COHERENT_BIT | VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT);
-	void* data;
-	// 将数据从pixel 拷贝到 data
+	void*data;
 	vkMapMemory(GetVulkanDevice(), tempmemory, 0, image_size, 0, &data);
 	memcpy(data, pixel, image_size);
 	vkUnmapMemory(GetVulkanDevice(), tempmemory);
-
-	// 拷贝数据
+	
 	VkCommandBuffer commandbuffer;
 	xBeginOneTimeCommandBuffer(&commandbuffer);
-	VkImageSubresourceRange subresourcerange = { texture->mImageAspectFlag,0,1,0,1 };
+	VkImageSubresourceRange subresourcerange = {texture->mImageAspectFlag,0,1,0,1};
 	xSetImageLayout(commandbuffer, texture->mImage, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, subresourcerange);
 	VkBufferImageCopy copy = {};
 	copy.imageSubresource.aspectMask = texture->mImageAspectFlag;
@@ -633,15 +629,15 @@ void xSubmitImage2D(XTexture* texture, int width, int height, const void* pixel)
 	copy.imageSubresource.baseArrayLayer = 0;
 	copy.imageSubresource.layerCount = 1;
 
-	copy.imageOffset = { 0,0,0 };
-	copy.imageExtent = { uint32_t(width),uint32_t(height),1 };
-	vkCmdCopyBufferToImage(commandbuffer, tempbuffer, texture->mImage,
+	copy.imageOffset = {0,0,0};
+	copy.imageExtent = {uint32_t(width),uint32_t(height),1};
+	vkCmdCopyBufferToImage(commandbuffer, tempbuffer, texture->mImage, 
 		VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &copy);
-	xSetImageLayout(commandbuffer, texture->mImage, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
-		VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, subresourcerange);
+	xSetImageLayout(commandbuffer, texture->mImage, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 
+		VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,subresourcerange);
 	xEndOneTimeCommandBuffer(commandbuffer);
 	vkDestroyBuffer(GetVulkanDevice(), tempbuffer, nullptr);
-	vkFreeMemory(GetVulkanDevice(), tempmemory, nullptr);
+	vkFreeMemory(GetVulkanDevice(), tempmemory,nullptr);
 }
 
 void xInitSrcAccessMask(VkImageLayout oldLayout, VkImageMemoryBarrier& barrier) {
@@ -1095,6 +1091,33 @@ void xSetDynamicState(XFixedPipeline* p, VkCommandBuffer commandbuffer) {
 	vkCmdSetDepthBias(commandbuffer, p->mDepthConstantFactor, p->mDepthClamp, p->mDepthSlopeFactor);
 	vkCmdPushConstants(commandbuffer, p->mPipelineLayout, p->mPushConstantShaderStage, 0,
 		sizeof(XVector4f) * p->mPushConstantCount, p->mPushConstants);
+}
+
+void xGenImageCube(XTexture* texture, uint32_t w, uint32_t h, VkFormat f,
+	VkImageUsageFlags usage, VkSampleCountFlagBits sample_count, int mipmap) {
+	VkImageCreateInfo ici = {};
+	ici.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
+	ici.imageType = VK_IMAGE_TYPE_2D;
+	ici.extent = { w,h,1 };
+	ici.mipLevels = mipmap;
+	ici.arrayLayers = 6;
+	ici.format = f;
+	ici.initialLayout = texture->mInitLayout;
+	ici.usage = usage;
+	ici.samples = sample_count;
+	ici.flags = VK_IMAGE_CREATE_CUBE_COMPATIBLE_BIT;
+	if (vkCreateImage(GetVulkanDevice(), &ici, nullptr, &texture->mImage) != VK_SUCCESS) {
+		printf("failed to create image\n");
+	}
+	VkMemoryRequirements memory_requirements;
+	vkGetImageMemoryRequirements(GetVulkanDevice(), texture->mImage, &memory_requirements);
+	VkMemoryAllocateInfo mai = {};
+	mai.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
+	mai.allocationSize = memory_requirements.size;
+	mai.memoryTypeIndex = xGetMemoryType(memory_requirements.memoryTypeBits,
+		VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
+	vkAllocateMemory(GetVulkanDevice(), &mai, nullptr, &texture->mMemory);
+	vkBindImageMemory(GetVulkanDevice(), texture->mImage, texture->mMemory, 0);
 }
 
 void xVulkanCleanUp() {
