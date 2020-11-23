@@ -96,5 +96,7 @@
   <ItemGroup>
     <None Include="Res\test.vs" />
     <None Include="Res\test.fs" />
+    <None Include="Res\ground.vs" />
+    <None Include="Res\ground.fs" />
   </ItemGroup>
 </Project>

@@ -13,6 +13,8 @@
 Texture2D* texture = nullptr;
 Material* test_material = nullptr;
 XFixedPipeline* test_pipeline = nullptr;
+Material* ground_material = nullptr;
+XFixedPipeline* ground_pipeline = nullptr;
 Material* fsq_material = nullptr;
 XFixedPipeline* fsq_pipeline = nullptr;
 FSQ* fsq = nullptr;
@@ -51,6 +53,25 @@ void Init() {
 	sphere = new Model;
 	sphere->Init("Res/Sphere.raw");
 	sphere->SetMaterial(test_material);
+
+	// 绘制地面
+	ground_material = new Material;
+	ground_material->Init("Res/ground.vsb", "Res/ground.fsb");
+	ground_material->SetMVP(model, view, projection);
+	ground_material->mFragVec4UBO->SetVector4(0, 0.0f, 5.0f, 0.0f, 1.0f);
+	ground_material->mFragVec4UBO->SetVector4(1, 10.0f, 10.0f, 10.0f, 1.0f);
+	ground_material->mFragVec4UBO->SetVector4(2, camera_pos.x, camera_pos.y, camera_pos.z, 1.0f);
+	ground_material->SubmitUniformBuffers();
+
+	ground_pipeline = new XFixedPipeline;
+	xSetColorAttachmentCount(ground_pipeline, 1);
+	ground_pipeline->mRenderPass = GetGlobalRenderPass();
+	ground_material->SetFixedPipeline(ground_pipeline);
+	ground_pipeline->mViewport = { 0.0f,0.0f,float(GetViewportWidth()),float(GetViewportHeight()),0.0f,1.0f };
+	ground_pipeline->mScissor = { {0,0},{uint32_t(GetViewportWidth()),uint32_t(GetViewportHeight())} };
+	ground_material->Finish();
+	ground->SetMaterial(ground_material);
+
 
 
 	texture = new Texture2D;
@@ -99,6 +120,9 @@ void OnQuit() {
 	}
 	if (fsq_pipeline != nullptr) {
 		delete fsq_pipeline;
+	}
+	if (ground_pipeline != nullptr) {
+		delete ground_pipeline;
 	}
 	// 释放texture的资源
 	if (texture != nullptr) {
