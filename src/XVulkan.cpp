@@ -1120,6 +1120,50 @@ void xGenImageCube(XTexture* texture, uint32_t w, uint32_t h, VkFormat f,
 	vkBindImageMemory(GetVulkanDevice(), texture->mImage, texture->mMemory, 0);
 }
 
+void xSubmitImageCube(XTexture* texture, int width, int height, const void* pixel) {
+	VkDeviceSize offset_unit = width * height;
+	if (texture->mFormat == VK_FORMAT_R8G8B8A8_UNORM) {
+		offset_unit *= 4;
+	}
+	int imagesize = offset_unit * 6;
+	VkBuffer tempbuffer;
+	VkDeviceMemory tempmemory;
+	xGenBuffer(tempbuffer, tempmemory, imagesize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
+		VK_MEMORY_PROPERTY_HOST_COHERENT_BIT | VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT);
+	void* data;
+	vkMapMemory(GetVulkanDevice(), tempmemory, 0, imagesize, 0, &data);
+	memcpy(data, pixel, imagesize);
+	vkUnmapMemory(GetVulkanDevice(), tempmemory);
+
+	std::vector<VkBufferImageCopy> copies;
+	for (uint32_t face = 0; face < 6; ++face) {
+		VkBufferImageCopy copy = {};
+		copy.imageSubresource.aspectMask = texture->mImageAspectFlag;
+		copy.imageSubresource.mipLevel = 0;
+		copy.imageSubresource.baseArrayLayer = 0;
+		copy.imageSubresource.layerCount = 1;
+
+		copy.imageOffset = { 0,0,0 };
+		copy.imageExtent = { uint32_t(width),uint32_t(height),1 };
+		copy.bufferOffset = offset_unit * face;
+		copies.push_back(copy);
+	}
+	VkCommandBuffer commandbuffer;
+	xBeginOneTimeCommandBuffer(&commandbuffer);
+	VkImageSubresourceRange subresourcerange = { texture->mImageAspectFlag,0,1,0,6 };
+	xSetImageLayout(commandbuffer, texture->mImage, VK_IMAGE_LAYOUT_UNDEFINED,
+		VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, subresourcerange);
+
+	vkCmdCopyBufferToImage(commandbuffer, tempbuffer, texture->mImage,
+		VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 6, copies.data());
+	xSetImageLayout(commandbuffer, texture->mImage, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+		VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, subresourcerange);
+	xEndOneTimeCommandBuffer(commandbuffer);
+
+	vkDestroyBuffer(GetVulkanDevice(), tempbuffer, nullptr);
+	vkFreeMemory(GetVulkanDevice(), tempmemory, nullptr);
+}
+
 void xVulkanCleanUp() {
 	if (sDefaultTexture != nullptr) {
 		// 释放纹理资源
