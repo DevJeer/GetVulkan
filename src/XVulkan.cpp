@@ -1164,6 +1164,22 @@ void xSubmitImageCube(XTexture* texture, int width, int height, const void* pixe
 	vkFreeMemory(GetVulkanDevice(), tempmemory, nullptr);
 }
 
+void xGenImageViewCube(XTexture* texture, int mipmap /* = 1 */) {
+	VkImageViewCreateInfo ivci = {};
+	ivci.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
+	ivci.image = texture->mImage;
+	ivci.viewType = VK_IMAGE_VIEW_TYPE_CUBE;
+	ivci.format = texture->mFormat;
+	ivci.subresourceRange.aspectMask = texture->mImageAspectFlag;
+	ivci.subresourceRange.baseMipLevel = 0;
+	ivci.subresourceRange.levelCount = mipmap;
+	ivci.subresourceRange.baseArrayLayer = 0;
+	ivci.subresourceRange.layerCount = 6;
+	ivci.components = { VK_COMPONENT_SWIZZLE_R,VK_COMPONENT_SWIZZLE_G,VK_COMPONENT_SWIZZLE_B,
+		VK_COMPONENT_SWIZZLE_A };
+	vkCreateImageView(GetVulkanDevice(), &ivci, nullptr, &texture->mImageView);
+}
+
 void xVulkanCleanUp() {
 	if (sDefaultTexture != nullptr) {
 		// 释放纹理资源

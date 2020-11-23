@@ -224,6 +224,8 @@ void xSetImageLayout(VkCommandBuffer commandbuffer, VkImage image, VkImageLayout
 	VkPipelineStageFlags dst = VK_PIPELINE_STAGE_ALL_COMMANDS_BIT);
 // 生成ImageView
 void xGenImageView2D(XTexture* texture, int mipmap = 1);
+// 生成ImageCubeView
+void xGenImageViewCube(XTexture* texture, int mipmap = 1);
 // 生成sampler 在shader中访问纹理的时候使用
 void xGenSampler(XTexture* texture);
 // 初始化默认纹理贴图
