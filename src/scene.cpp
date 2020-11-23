@@ -30,15 +30,17 @@ void Init() {
 	ground->Init();
 	glm::vec3 camera_pos(0.0f, 5.0f, 15.0f);
 	test_material = new Material;
-	test_material->Init("Res/test.vsb", "Res/test.fsb");
+	test_material->Init("Res/Sphere.vsb", "Res/Sphere.fsb");
 	glm::mat4 model;
 	glm::mat4 projection = glm::perspective(45.0f, float(GetViewportWidth()) / float(GetViewportHeight()),
 		0.1f, 100.0f);
 	projection[1][1] *= -1.0f;
 	glm::mat4 view = glm::lookAt(camera_pos, glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 	test_material->SetMVP(model, view, projection);
+	test_material->mFragVec4UBO->SetVector4(0, 0.0f, 5.0f, 0.0f, 1.0f);
+	test_material->mFragVec4UBO->SetVector4(1, 10.0f, 10.0f, 10.0f, 1.0f);
+	test_material->mFragVec4UBO->SetVector4(2, camera_pos.x, camera_pos.y, camera_pos.z, 1.0f);
 	test_material->SubmitUniformBuffers();
-
 
 	test_pipeline = new XFixedPipeline;
 	xSetColorAttachmentCount(test_pipeline, 1);
@@ -48,11 +50,17 @@ void Init() {
 	test_pipeline->mScissor = { {0,0},{uint32_t(GetViewportWidth()),uint32_t(GetViewportHeight())} };
 	test_material->Finish();
 
-	ground->SetMaterial(test_material);
+	texture = new Texture2D;
+	texture->SetImage("Res/textures/test.bmp");
+	test_material->SetTexture(0, texture);
+
+	skybox = new TextureCube;
+	skybox->Init("");
 
 	// 绘制球
 	sphere = new Model;
 	sphere->Init("Res/Sphere.raw");
+	test_material->SetTexture(0, skybox);
 	sphere->SetMaterial(test_material);
 
 	// 绘制地面
@@ -74,12 +82,6 @@ void Init() {
 	ground->SetMaterial(ground_material);
 
 
-	texture = new Texture2D;
-	texture->SetImage("Res/textures/test.bmp");
-	test_material->SetTexture(0, texture);
-
-	skybox = new TextureCube;
-	skybox->Init("");
 
 
 	// 全屏四边形的绘制

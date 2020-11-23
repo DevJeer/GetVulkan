@@ -35,34 +35,34 @@ void TextureCube::Init(const char* path) {
 	mFormat = VK_FORMAT_R8G8B8A8_UNORM;
 	unsigned char* image_data = nullptr;
 	int image_width, image_height, channel;
-	unsigned char* pixel = LoadImageFromFile("Res/right.bmp", image_width, image_height, channel, 4);
+	unsigned char* pixel = LoadImageFromFile("Res/right.bmp", image_width, image_height, channel, 4, true);
 	image_data = new unsigned char[image_width * image_height * 4 * 6];
 	int image_unit_size = image_width * image_height * 4;
 	int offset = 0;
 	memcpy(image_data, pixel, image_unit_size);
 	offset += image_unit_size;
 	delete[]pixel;
-	pixel = LoadImageFromFile("Res/left.bmp", image_width, image_height, channel, 4);
+	pixel = LoadImageFromFile("Res/left.bmp", image_width, image_height, channel, 4, true);
 	memcpy(image_data + offset, pixel, image_unit_size);
 	offset += image_unit_size;
 	delete[]pixel;
 
-	pixel = LoadImageFromFile("Res/top.bmp", image_width, image_height, channel, 4);
+	pixel = LoadImageFromFile("Res/top.bmp", image_width, image_height, channel, 4, true);
 	memcpy(image_data + offset, pixel, image_unit_size);
 	offset += image_unit_size;
 	delete[]pixel;
 
-	pixel = LoadImageFromFile("Res/bottom.bmp", image_width, image_height, channel, 4);
+	pixel = LoadImageFromFile("Res/bottom.bmp", image_width, image_height, channel, 4, true);
 	memcpy(image_data + offset, pixel, image_unit_size);
 	offset += image_unit_size;
 	delete[]pixel;
 
-	pixel = LoadImageFromFile("Res/back.bmp", image_width, image_height, channel, 4);
+	pixel = LoadImageFromFile("Res/back.bmp", image_width, image_height, channel, 4, true);
 	memcpy(image_data + offset, pixel, image_unit_size);
 	offset += image_unit_size;
 	delete[]pixel;
 
-	pixel = LoadImageFromFile("Res/front.bmp", image_width, image_height, channel, 4);
+	pixel = LoadImageFromFile("Res/front.bmp", image_width, image_height, channel, 4, true);
 	memcpy(image_data + offset, pixel, image_unit_size);
 	offset += image_unit_size;
 	delete[]pixel;

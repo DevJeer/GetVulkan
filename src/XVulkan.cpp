@@ -1140,7 +1140,7 @@ void xSubmitImageCube(XTexture* texture, int width, int height, const void* pixe
 		VkBufferImageCopy copy = {};
 		copy.imageSubresource.aspectMask = texture->mImageAspectFlag;
 		copy.imageSubresource.mipLevel = 0;
-		copy.imageSubresource.baseArrayLayer = 0;
+		copy.imageSubresource.baseArrayLayer = face;
 		copy.imageSubresource.layerCount = 1;
 
 		copy.imageOffset = { 0,0,0 };

@@ -98,5 +98,7 @@
     <None Include="Res\test.fs" />
     <None Include="Res\ground.vs" />
     <None Include="Res\ground.fs" />
+    <None Include="Res\Sphere.vs" />
+    <None Include="Res\Sphere.fs" />
   </ItemGroup>
 </Project>
