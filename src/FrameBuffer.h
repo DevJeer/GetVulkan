@@ -8,8 +8,8 @@ public:
 	// renderPass
 	VkRenderPass mRenderPass;
 	uint32_t mWidth, mHeight;
-	// —’…´Õº
-	Texture2D* mColorBuffer;
+	std::vector<Texture2D*>mAttachments;
+	int mColorBufferCount;
 	// …Ó∂»Õº
 	Texture2D* mDepthBuffer;
 public:
