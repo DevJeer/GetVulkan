@@ -9,6 +9,7 @@
 #include "FSQ.h"
 #include "Ground.h"
 #include "Model.h"
+#include "FrameBuffer.h"
 
 Texture2D* texture = nullptr;
 TextureCube* skybox = nullptr;
@@ -21,14 +22,18 @@ XFixedPipeline* fsq_pipeline = nullptr;
 FSQ* fsq = nullptr;
 Ground* ground = nullptr;
 Model* sphere = nullptr;
+FrameBuffer* fbo = nullptr;
 
 void Init() {
 	xInitDefaultTexture();
+	fbo = new FrameBuffer;
+	fbo->SetSize(GetViewportWidth(), GetViewportHeight());
+	fbo->AttachColorBuffer();
+	fbo->AttachDepthBuffer();
+	fbo->Finish();
 
-	// 初始化地面
-	ground = new Ground;
-	ground->Init();
-	glm::vec3 camera_pos(0.0f, 5.0f, 15.0f);
+	
+	glm::vec3 camera_pos(0.0f, 5.0f, 10.0f);
 	test_material = new Material;
 	test_material->Init("Res/Sphere.vsb", "Res/Sphere.fsb");
 	glm::mat4 model;
@@ -63,6 +68,9 @@ void Init() {
 	test_material->SetTexture(0, skybox);
 	sphere->SetMaterial(test_material);
 
+	// 初始化地面
+	ground = new Ground;
+	ground->Init();
 	// 绘制地面
 	ground_material = new Material;
 	ground_material->Init("Res/ground.vsb", "Res/ground.fsb");
@@ -148,6 +156,10 @@ void OnQuit() {
 	// 销毁天空盒
 	if (skybox != nullptr) {
 		delete skybox;
+	}
+	// 销毁fbo
+	if (fbo != nullptr) {
+		delete fbo;
 	}
 	Material::CleanUp();
 	xVulkanCleanUp();

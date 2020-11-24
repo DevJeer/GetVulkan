@@ -146,6 +146,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="src\BVulkan.cpp" />
+    <ClCompile Include="src\FrameBuffer.cpp" />
     <ClCompile Include="src\FSQ.cpp" />
     <ClCompile Include="src\Ground.cpp" />
     <ClCompile Include="src\IndexBuffer.cpp" />
@@ -161,6 +162,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\BVulkan.h" />
+    <ClInclude Include="src\FrameBuffer.h" />
     <ClInclude Include="src\FSQ.h" />
     <ClInclude Include="src\Ground.h" />
     <ClInclude Include="src\IndexBuffer.h" />

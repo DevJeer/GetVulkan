@@ -5,6 +5,8 @@
 class FrameBuffer {
 public:
 	VkFramebuffer mFBO;
+	// renderPass
+	VkRenderPass mRenderPass;
 	uint32_t mWidth, mHeight;
 	// ÑÕÉ«Í¼
 	Texture2D* mColorBuffer;
