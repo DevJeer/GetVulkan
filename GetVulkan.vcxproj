@@ -176,8 +176,12 @@
     <ClInclude Include="third-party\stb_image_aug.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Res\depthrender.fs" />
+    <None Include="Res\depthrender.vs" />
     <None Include="Res\ground.fs" />
     <None Include="Res\ground.vs" />
+    <None Include="Res\renderdepth.fs" />
+    <None Include="Res\renderdepth.vs" />
     <None Include="Res\Sphere.fs" />
     <None Include="Res\Sphere.vs" />
     <None Include="Res\test.fs" />

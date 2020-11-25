@@ -13,12 +13,20 @@
 
 Texture2D* texture = nullptr;
 TextureCube* skybox = nullptr;
-Material* test_material = nullptr;
-XFixedPipeline* test_pipeline = nullptr;
+
+Material* sphere_material = nullptr;
+XFixedPipeline* sphere_pipeline = nullptr;
+
+// 深度图渲染用到的管线
+Material* depthrender_material = nullptr;
+XFixedPipeline* depthrender_pipeline = nullptr;
+
 Material* ground_material = nullptr;
 XFixedPipeline* ground_pipeline = nullptr;
+
 Material* fsq_material = nullptr;
 XFixedPipeline* fsq_pipeline = nullptr;
+
 FSQ* fsq = nullptr;
 Ground* ground = nullptr;
 Model* sphere = nullptr;
@@ -32,33 +40,40 @@ void Init() {
 	fbo->AttachDepthBuffer();
 	fbo->Finish();
 
-	
 	glm::vec3 camera_pos(0.0f, 5.0f, 10.0f);
-	test_material = new Material;
-	test_material->Init("Res/Sphere.vsb", "Res/Sphere.fsb");
+	glm::vec3 light_pos(0.0f, 5.0f, 0.0f);
+	glm::mat4 light_view = glm::lookAt(
+		light_pos,
+		glm::vec3(0.0f, 0.0f, 0.0f),
+		glm::vec3(0.0f, 0.0f, -1.0f)
+	);
+	
+	// 准备球的资源
+	sphere_material = new Material;
+	sphere_material->Init("Res/Sphere.vsb", "Res/Sphere.fsb");
 	glm::mat4 model;
 	glm::mat4 projection = glm::perspective(45.0f, float(GetViewportWidth()) / float(GetViewportHeight()),
 		0.1f, 100.0f);
 	projection[1][1] *= -1.0f;
 	glm::mat4 view = glm::lookAt(camera_pos, glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-	test_material->SetMVP(model, view, projection);
-	test_material->mFragVec4UBO->SetVector4(0, 0.0f, 5.0f, 0.0f, 1.0f);
-	test_material->mFragVec4UBO->SetVector4(1, 10.0f, 10.0f, 10.0f, 1.0f);
-	test_material->mFragVec4UBO->SetVector4(2, camera_pos.x, camera_pos.y, camera_pos.z, 1.0f);
-	test_material->SubmitUniformBuffers();
+	sphere_material->SetMVP(model, view, projection);
+	sphere_material->mFragVec4UBO->SetVector4(0, light_pos.x, light_pos.y, light_pos.z, 1.0f);
+	sphere_material->mFragVec4UBO->SetVector4(1, 10.0f, 10.0f, 10.0f, 1.0f);
+	sphere_material->mFragVec4UBO->SetVector4(2, camera_pos.x, camera_pos.y, camera_pos.z, 1.0f);
+	sphere_material->SubmitUniformBuffers();
 
-	test_pipeline = new XFixedPipeline;
-	xSetColorAttachmentCount(test_pipeline, 1);
+	sphere_pipeline = new XFixedPipeline;
+	xSetColorAttachmentCount(sphere_pipeline, 1);
 	// 这块使用我们自己的fbo
-	test_pipeline->mRenderPass = fbo->mRenderPass;
-	test_material->SetFixedPipeline(test_pipeline);
-	test_pipeline->mViewport = { 0.0f,0.0f,float(GetViewportWidth()),float(GetViewportHeight()),0.0f,1.0f };
-	test_pipeline->mScissor = { {0,0},{uint32_t(GetViewportWidth()),uint32_t(GetViewportHeight())} };
-	test_material->Finish();
+	sphere_pipeline->mRenderPass = GetGlobalRenderPass();
+	sphere_material->SetFixedPipeline(sphere_pipeline);
+	sphere_pipeline->mViewport = { 0.0f,0.0f,float(GetViewportWidth()),float(GetViewportHeight()),0.0f,1.0f };
+	sphere_pipeline->mScissor = { {0,0},{uint32_t(GetViewportWidth()),uint32_t(GetViewportHeight())} };
+	sphere_material->Finish();
 
 	texture = new Texture2D;
 	texture->SetImage("Res/textures/test.bmp");
-	test_material->SetTexture(0, texture);
+	//sphere_material->SetTexture(0, texture);
 
 	skybox = new TextureCube;
 	skybox->Init("");
@@ -66,8 +81,8 @@ void Init() {
 	// 绘制球
 	sphere = new Model;
 	sphere->Init("Res/Sphere.raw");
-	test_material->SetTexture(0, skybox);
-	sphere->SetMaterial(test_material);
+	sphere_material->SetTexture(0, skybox);
+	sphere->SetMaterial(sphere_material);
 
 	// 初始化地面
 	ground = new Ground;
@@ -76,14 +91,14 @@ void Init() {
 	ground_material = new Material;
 	ground_material->Init("Res/ground.vsb", "Res/ground.fsb");
 	ground_material->SetMVP(model, view, projection);
-	ground_material->mFragVec4UBO->SetVector4(0, 0.0f, 5.0f, 0.0f, 1.0f);
+	ground_material->mFragVec4UBO->SetVector4(0, light_pos.x, light_pos.y, light_pos.z, 1.0f);
 	ground_material->mFragVec4UBO->SetVector4(1, 10.0f, 10.0f, 10.0f, 1.0f);
 	ground_material->mFragVec4UBO->SetVector4(2, camera_pos.x, camera_pos.y, camera_pos.z, 1.0f);
 	ground_material->SubmitUniformBuffers();
 
 	ground_pipeline = new XFixedPipeline;
 	xSetColorAttachmentCount(ground_pipeline, 1);
-	ground_pipeline->mRenderPass = fbo->mRenderPass;
+	ground_pipeline->mRenderPass = GetGlobalRenderPass();
 	ground_material->SetFixedPipeline(ground_pipeline);
 	ground_pipeline->mViewport = { 0.0f,0.0f,float(GetViewportWidth()),float(GetViewportHeight()),0.0f,1.0f };
 	ground_pipeline->mScissor = { {0,0},{uint32_t(GetViewportWidth()),uint32_t(GetViewportHeight())} };
@@ -91,11 +106,22 @@ void Init() {
 	ground->SetMaterial(ground_material);
 
 
+	depthrender_material = new Material;
+	depthrender_material->Init("Res/depthrender.vsb", "Res/depthrender.fsb");
+	depthrender_material->SetMVP(model, light_view, projection);
+	depthrender_material->SubmitUniformBuffers();
 
+	depthrender_pipeline = new XFixedPipeline;
+	xSetColorAttachmentCount(depthrender_pipeline, 1);
+	depthrender_pipeline->mRenderPass = fbo->mRenderPass;
+	depthrender_pipeline->mViewport = { 0.0f,0.0f,float(GetViewportWidth()),float(GetViewportHeight()),0.0f,1.0f };
+	depthrender_pipeline->mScissor = { {0,0},{uint32_t(GetViewportWidth()),uint32_t(GetViewportHeight())} };
+	depthrender_material->SetFixedPipeline(depthrender_pipeline);
+	depthrender_material->Finish();
 
 	// 全屏四边形的绘制
 	fsq_material = new Material;
-	fsq_material->Init("Res/fsq.vsb", "Res/fsq.fsb");
+	fsq_material->Init("Res/renderdepth.vsb", "Res/renderdepth.fsb");
 	fsq_material->SubmitUniformBuffers();
 
 	fsq_pipeline = new XFixedPipeline;
@@ -109,7 +135,7 @@ void Init() {
 
 	//fsq_material->SetTexture(0, texture);
 	// 将fbo的颜色图片 当做texture
-	fsq_material->SetTexture(0, fbo->mAttachments[0]);
+	fsq_material->SetTexture(0, fbo->mAttachments[1]);
 	fsq = new FSQ;
 	fsq->Init();
 	fsq->mMaterial = fsq_material;
@@ -119,13 +145,19 @@ void Draw(float deltaTime) {
 	aClearColor(0.1f, 0.4f, 0.6f, 1.0f);
 	// 将图像渲染到我们创建的vbo上
 	VkCommandBuffer commandbuffer = fbo->BeginRendering();
+	ground->SetMaterial(depthrender_material);
+	sphere->SetMaterial(depthrender_material);
 	ground->Draw(commandbuffer);
 	sphere->Draw(commandbuffer);
 	
 	vkCmdEndRenderPass(commandbuffer);
 	
 	xBeginRendering(commandbuffer);
-	fsq->Draw(commandbuffer);
+	ground->SetMaterial(ground_material);
+	sphere->SetMaterial(sphere_material);
+	ground->Draw(commandbuffer);
+	sphere->Draw(commandbuffer);
+	//fsq->Draw(commandbuffer);
 	xEndRendering();
 	// 交换前后缓冲区 需要指定哪一个commandBuffer
 	xSwapBuffers();
@@ -136,14 +168,17 @@ void OnViewportChanged(int width, int height) {
 }
 
 void OnQuit() {
-	if (test_pipeline != nullptr) {
-		delete test_pipeline;
+	if (sphere_pipeline != nullptr) {
+		delete sphere_pipeline;
 	}
 	if (fsq_pipeline != nullptr) {
 		delete fsq_pipeline;
 	}
 	if (ground_pipeline != nullptr) {
 		delete ground_pipeline;
+	}
+	if (depthrender_pipeline != nullptr) {
+		delete depthrender_pipeline;
 	}
 	// 释放texture的资源
 	if (texture != nullptr) {
