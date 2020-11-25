@@ -49,7 +49,8 @@ void Init() {
 
 	test_pipeline = new XFixedPipeline;
 	xSetColorAttachmentCount(test_pipeline, 1);
-	test_pipeline->mRenderPass = GetGlobalRenderPass();
+	// 这块使用我们自己的fbo
+	test_pipeline->mRenderPass = fbo->mRenderPass;
 	test_material->SetFixedPipeline(test_pipeline);
 	test_pipeline->mViewport = { 0.0f,0.0f,float(GetViewportWidth()),float(GetViewportHeight()),0.0f,1.0f };
 	test_pipeline->mScissor = { {0,0},{uint32_t(GetViewportWidth()),uint32_t(GetViewportHeight())} };
@@ -82,7 +83,7 @@ void Init() {
 
 	ground_pipeline = new XFixedPipeline;
 	xSetColorAttachmentCount(ground_pipeline, 1);
-	ground_pipeline->mRenderPass = GetGlobalRenderPass();
+	ground_pipeline->mRenderPass = fbo->mRenderPass;
 	ground_material->SetFixedPipeline(ground_pipeline);
 	ground_pipeline->mViewport = { 0.0f,0.0f,float(GetViewportWidth()),float(GetViewportHeight()),0.0f,1.0f };
 	ground_pipeline->mScissor = { {0,0},{uint32_t(GetViewportWidth()),uint32_t(GetViewportHeight())} };
@@ -99,7 +100,7 @@ void Init() {
 
 	fsq_pipeline = new XFixedPipeline;
 	xSetColorAttachmentCount(fsq_pipeline, 1);
-	fsq_pipeline->mRenderPass = GetGlobalRenderPass();
+	fsq_pipeline->mRenderPass = fbo->mRenderPass;
 	fsq_pipeline->mViewport = { 0.0f,0.0f,float(GetViewportWidth()),float(GetViewportHeight()),0.0f,1.0f };
 	fsq_pipeline->mScissor = { {0,0},{uint32_t(GetViewportWidth()),uint32_t(GetViewportHeight())} };
 	fsq_pipeline->mInputAssetmlyState.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP;
@@ -114,10 +115,14 @@ void Init() {
 
 void Draw(float deltaTime) {
 	aClearColor(0.1f, 0.4f, 0.6f, 1.0f);
-	VkCommandBuffer commandbuffer = xBeginRendering();
+	// 将图像渲染到我们创建的vbo上
+	VkCommandBuffer commandbuffer = fbo->BeginRendering();
 	ground->Draw(commandbuffer);
 	sphere->Draw(commandbuffer);
 	//fsq->Draw(commandbuffer);
+	vkCmdEndRenderPass(commandbuffer);
+	
+	xBeginRendering(commandbuffer);
 	xEndRendering();
 	// 交换前后缓冲区 需要指定哪一个commandBuffer
 	xSwapBuffers();

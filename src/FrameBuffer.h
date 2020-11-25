@@ -9,7 +9,11 @@ public:
 	VkRenderPass mRenderPass;
 	uint32_t mWidth, mHeight;
 	std::vector<Texture2D*>mAttachments;
+	// 保存清理颜色的值
+	std::vector<VkClearValue> mClearValues;
 	int mColorBufferCount;
+	// 记录深度图的索引
+	int mDepthBufferIndex;
 	// 深度图
 	Texture2D* mDepthBuffer;
 public:
@@ -23,4 +27,10 @@ public:
 	void AttachDepthBuffer();
 	// 创建framebuffer
 	void Finish();
+	// 设置颜色图
+	void SetClearColor(int index, float r, float g, float b, float a);
+	// 设置深度图
+	void SetClearDepthStencil(float depth, uint32_t stencil);
+	// 使用当前的fbo进行渲染
+	VkCommandBuffer BeginRendering(VkCommandBuffer commandbuffer = nullptr);
 };

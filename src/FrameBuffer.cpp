@@ -34,6 +34,10 @@ void FrameBuffer::AttachColorBuffer(VkFormat format /* = VK_FORMAT_R8G8B8A8_UNOR
 	// 更新colorAttachment的索引
 	mColorBufferCount++;
 	mAttachments.push_back(color_buffer);
+	// 创建清除颜色图的对象
+	VkClearValue cv;
+	cv.color = { 0.0f,0.0f,0.0f,0.0f };
+	mClearValues.push_back(cv);
 }
 
 void FrameBuffer::AttachDepthBuffer() {
@@ -43,8 +47,13 @@ void FrameBuffer::AttachDepthBuffer() {
 		VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT);
 	xGenImageView2D(depth_buffer);
 	xGenSampler(depth_buffer);
+	mDepthBufferIndex = mAttachments.size();
 	mAttachments.push_back(depth_buffer);
 	mDepthBuffer = depth_buffer;
+	// 创建清除深度图的对象
+	VkClearValue cv;
+	cv.depthStencil = { 1.0f,0 };
+	mClearValues.push_back(cv);
 }
 
 void FrameBuffer::Finish() {
@@ -134,4 +143,35 @@ void FrameBuffer::Finish() {
 	fbci.layers = 1;
 	fbci.renderPass = mRenderPass;
 	vkCreateFramebuffer(GetVulkanDevice(), &fbci, nullptr, &mFBO);
+}
+
+void FrameBuffer::SetClearColor(int index, float r, float g, float b, float a) {
+	mClearValues[index].color = { r,g,b,a };
+}
+
+void FrameBuffer::SetClearDepthStencil(float depth, uint32_t stencil) {
+	mClearValues[mDepthBufferIndex].depthStencil = { depth,stencil };
+}
+
+VkCommandBuffer FrameBuffer::BeginRendering(VkCommandBuffer commandbuffer /* = nullptr */) {
+	VkCommandBuffer cmd;
+	if (commandbuffer != nullptr) {
+		cmd = commandbuffer;
+	}
+	else {
+		xBeginOneTimeCommandBuffer(&cmd);
+	}
+	VkFramebuffer render_target = mFBO;
+	VkRenderPass render_pass = mRenderPass;
+
+	VkRenderPassBeginInfo rpbi = {};
+	rpbi.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+	rpbi.framebuffer = render_target;
+	rpbi.renderPass = render_pass;
+	rpbi.renderArea.offset = { 0,0 };
+	rpbi.renderArea.extent = { uint32_t(GetViewportWidth()),uint32_t(GetViewportHeight()) };
+	rpbi.clearValueCount = mClearValues.size();
+	rpbi.pClearValues = mClearValues.data();
+	vkCmdBeginRenderPass(cmd, &rpbi, VK_SUBPASS_CONTENTS_INLINE);
+	return cmd;
 }
