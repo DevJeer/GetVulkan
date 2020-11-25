@@ -100,14 +100,16 @@ void Init() {
 
 	fsq_pipeline = new XFixedPipeline;
 	xSetColorAttachmentCount(fsq_pipeline, 1);
-	fsq_pipeline->mRenderPass = fbo->mRenderPass;
+	fsq_pipeline->mRenderPass = GetGlobalRenderPass();
 	fsq_pipeline->mViewport = { 0.0f,0.0f,float(GetViewportWidth()),float(GetViewportHeight()),0.0f,1.0f };
 	fsq_pipeline->mScissor = { {0,0},{uint32_t(GetViewportWidth()),uint32_t(GetViewportHeight())} };
 	fsq_pipeline->mInputAssetmlyState.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP;
 	fsq_material->SetFixedPipeline(fsq_pipeline);
 	fsq_material->Finish();
 
-	fsq_material->SetTexture(0, texture);
+	//fsq_material->SetTexture(0, texture);
+	// 将fbo的颜色图片 当做texture
+	fsq_material->SetTexture(0, fbo->mAttachments[0]);
 	fsq = new FSQ;
 	fsq->Init();
 	fsq->mMaterial = fsq_material;
@@ -119,10 +121,11 @@ void Draw(float deltaTime) {
 	VkCommandBuffer commandbuffer = fbo->BeginRendering();
 	ground->Draw(commandbuffer);
 	sphere->Draw(commandbuffer);
-	//fsq->Draw(commandbuffer);
+	
 	vkCmdEndRenderPass(commandbuffer);
 	
 	xBeginRendering(commandbuffer);
+	fsq->Draw(commandbuffer);
 	xEndRendering();
 	// 交换前后缓冲区 需要指定哪一个commandBuffer
 	xSwapBuffers();

@@ -96,7 +96,7 @@ void FrameBuffer::Finish() {
 				VK_ATTACHMENT_LOAD_OP_DONT_CARE,
 				VK_ATTACHMENT_STORE_OP_DONT_CARE,
 				VK_IMAGE_LAYOUT_UNDEFINED,
-				VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL
+				VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL
 			};
 			colorattachment_refences[color_buffer_index++] = {
 				uint32_t(attachment_point++),VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL
