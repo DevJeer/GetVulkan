@@ -4,7 +4,7 @@
 #include "UniformBuffer.h"
 class Material {
 public:
-	// 渲染用的程序
+	// program pipeline
 	XProgram mProgram;
 	// 管线
 	XFixedPipeline* mFixedPipeline;

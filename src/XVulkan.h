@@ -46,6 +46,7 @@ struct XVector4f {
 	float mData[4];
 };
 
+// 顶点输入
 struct XVertexData {
 	float mPosition[4];
 	float mTexcoord[4];
@@ -67,6 +68,7 @@ enum XUniformBufferType {
 	kXUniformBufferTypeCount
 };
 
+// uniform buffer
 struct XUniformBuffer {
 	VkBuffer mBuffer;
 	VkDeviceMemory mMemory;
@@ -161,7 +163,7 @@ void xglBufferData(XVulkanHandle vbo, int size, void* data);
 // 创建vbo
 VkResult xGenBuffer(VkBuffer& buffer, VkDeviceMemory& buffermemory, VkDeviceSize size,
 	VkBufferUsageFlags usage, VkMemoryPropertyFlags properties);
-// 填充fbo
+// 填充vbo
 void xBufferSubData(VkBuffer buffer, VkBufferUsageFlags usage, const void* data,
 	VkDeviceSize size);
 
